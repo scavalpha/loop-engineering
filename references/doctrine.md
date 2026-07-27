@@ -1,17 +1,18 @@
-# Doctrine: the laws and why they exist
+# Doctrine: the laws and the incidents behind them
 
-Every rule below was paid for in production. The format is: the rule, then the
-incident that created it. Keep this file with the law: a rule whose origin is
-forgotten gets deleted by the next optimizer, and the incident comes back.
+Every rule below was paid for in production: a lost night, a lying card, a
+false green. The format is the rule, then what created it. Keep the incidents
+with the rules: a rule whose origin is forgotten gets deleted by the next
+person optimising, and the incident comes back.
 
-## 1. Architecture
+**How to read this.** These pages were written when the work was driven by a
+bash script wrapping a weak local model, so they describe mechanisms in terms
+of that machinery: a driver, gates, probes, cards moving between directories.
+You do not need any of that. Build the harness you judge necessary. What is
+worth carrying is underneath the mechanism: WHY each guard exists, and what
+happened when it was missing. Read it that way.
 
-**Two tiers.** A deterministic bash driver (the law) wraps a probabilistic
-maker (the agent). The law owns: card selection, prompts, gates, probes,
-commit, reset, retry, escalation, pausing, reaping, reporting. The maker owns
-exactly one thing: editing files until the build is green. Everything the law
-can decide deterministically, it must. The maker is never asked a question
-whose answer can be computed.
+## 1. Isolation and atomicity
 
 **The worktree is the blast radius.** The maker works in a disposable git
 worktree on a dedicated branch, never in the main checkout. This is what makes
@@ -192,11 +193,16 @@ from the provider justifies a long wait, an estimate never does.
 - **The owner merges.** Greens accumulate on the loop branch. Merging into
   the base branch is a human decision after independent verification.
 
-## 11. Portability and the anti-leak rule
+## 11. What is knowledge, and what is this project
 
-All stack knowledge (directories, ports, build commands, install commands,
-briefs) lives in ONE file: `loop/stack.sh`. The law never contains a project
-name, a port, or a stack command outside documented defaults. This is what
-lets several projects share one law and cross-pollinate hardening: a fix
-motivated by project A protects project B the same week. When you improve the
-law, improve it generically and keep the incident in the comment.
+Keep two things apart. The doctrine above is knowledge: it travels to the next
+project unchanged. Everything a project knows about itself, what it is, its
+conventions, its traps, the checks written for defects that cost it dearly,
+belongs to that project and must survive every upgrade of anything else.
+
+When unsure which side something belongs to, ask whether a stranger's
+repository would want it. If not, it stays home. See `what-travels.md`.
+
+A corollary worth stating: nothing in this doctrine should name a project, a
+directory or a command. The moment it does, it has stopped being knowledge and
+started being configuration.

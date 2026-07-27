@@ -95,10 +95,9 @@ itself, which is the failure this whole doctrine exists to prevent.
 Read these when you want the detail behind a rule, not before starting.
 
 - `references/doctrine.md` — each law with the incident that created it
-- `references/card-format.md` — cards and checks that cannot lie
-- `references/agents.md` — casting maker, reviewer, cartographer, critic
-- `references/getting-started.md` — from a spec document to a running loop
-- `references/generic-vs-project.md` — what travels vs what is learned here
-- `references/beyond-code.md` — books, docs, datasets
-- `references/supervision.md` — watching a run, failure classes, closing
-- `references/native-mode.md` — one worked protocol, if you want a starting point
+- `references/card-format.md` — units of work that cannot lie
+- `references/running-a-loop.md` — one worked way of pursuing a goal
+- `references/agents.md` — who does the work, who checks it
+- `references/getting-started.md` — from a spec to a working loop
+- `references/what-travels.md` — knowledge vs what a project learns about itself
+- `references/beyond-code.md` — books, documents, datasets

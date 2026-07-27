@@ -1,15 +1,15 @@
 # Beyond code: loops on books, documents, datasets
 
-Nothing in the law says "code". It says: a card is a unit of work, a maker
-produces it, and GATES decide whether it survives. The only real requirement
-is that something mechanical can say yes or no.
+Nothing in this doctrine says "code". It says: work is done when something can
+verify it. The only real requirement is that something can settle the question
+without asking a model to grade itself.
 
 Replace "compiler and tests" with "whatever can mechanically check this
 domain", and the loop works on prose, documentation, datasets, translations,
 slide decks.
 
-What never changes: green is a commit, red is a full reset, the maker never
-grades itself, and the owner merges.
+What never changes: success is a commit, failure is a clean reset, nobody
+grades their own work, and the owner merges.
 
 ## Worked example: a novelist writing chapters
 
@@ -22,8 +22,8 @@ manuscrit/
   chapitres/
     01-arrivee.md
     02-la-lettre.md
-  loop/               the law
-  docs/domain-rules.md   <- the spec: what this book IS
+  loop/tasks/         the cards: one per chapter or revision pass
+  docs/domain-rules.md   the spec: what this book IS
 ```
 
 **The spec** (`docs/domain-rules.md`) carries the constraints the book must
@@ -50,7 +50,6 @@ respect, exactly as business rules would:
 ```markdown
 # Chapitre 9, le depart au petit matin
 
-SCOPE: full
 VALUE: P1
 
 USE CASE:
@@ -63,40 +62,20 @@ DONE WHEN:
 - Every named character already exists in bible.md
 - bible.md is updated with any new fact the chapter establishes
 - No fact contradicts the bible
-
-PROBE: test -f chapitres/09-le-depart.md
-PROBE: bash outils/mots.sh chapitres/09-le-depart.md 2000 4000
-PROBE: bash outils/personnages.sh chapitres/09-le-depart.md bible.md
-PROBE: vale --minAlertLevel=error chapitres/09-le-depart.md
 ```
 
-**The gates** in `loop/stack.sh` become prose checks:
+**What "it builds and tests pass" becomes here**: a prose linter over the
+chapters, plus a consistency script you write yourself. Fifty lines of shell
+already check a great deal: every capitalised name appears in the bible, no
+chapter references an event scheduled later in the timeline, word counts stay
+in range, no chapter number is duplicated or missing.
 
-```bash
-STACK_NAME="mon-roman"
-ARCH_PROFILE="lib"                  # no front, no back, no ports
-PROJECT_DOMAIN="un roman en francais, troisieme personne limitee"
-
-GATE_FRONT_CMD='vale --minAlertLevel=error chapitres/'
-GATE_BACK_CMD='bash outils/coherence.sh'   # your own consistency checks
-
-STACK_BRIEF='Manuscrit en markdown, un fichier par chapitre dans chapitres/.
-La bible (bible.md) fait autorite sur les personnages, lieux et faits etablis:
-un chapitre ne peut jamais la contredire, il peut seulement l ajouter. POV
-troisieme personne limitee sur Mara, temps passe. Style: phrases courtes,
-pas d adverbes en -ment en cascade, dialogues sans incises redondantes.'
-```
-
-`outils/coherence.sh` is yours to write, and it is where the real value sits.
-Fifty lines of shell can already check: every capitalised name in a chapter
-appears in the bible, no chapter references an event scheduled later in the
-timeline, word counts stay in range, no chapter number is duplicated or
-missing, tense markers do not drift.
+That consistency script is yours to write, and it is where the real value
+sits: you know what your book must never contradict.
 
 The checker (a different model family) then reviews each accepted chapter for
 what no script can see: does the promise of the card actually land, does the
-voice hold, is a plot thread dropped. Its findings become fix cards, P0,
-fix-forward.
+voice hold, is a plot thread dropped. Its findings become the next card, at top priority, and nothing gets reverted.
 
 ## What the loop can and cannot guarantee here
 
@@ -110,12 +89,11 @@ checkable, and a loop that pretends otherwise lies to you. The honest split:
 the loop owns consistency and constraints, you own taste. Read every chapter.
 Merge nothing you have not read.
 
-This limit is not specific to prose, it is the same everywhere. In code, the
-gates prove it builds and behaves; they never prove the design is wise.
+This limit is not specific to prose, it is the same everywhere. In code, building and testing prove it works; they never prove the design is wise.
 
 ## Other non-code domains that fit
 
-| Domain | Gates that actually work |
+| Domain | What settles the question |
 | --- | --- |
 | Technical documentation | link checker, code blocks executed in a sandbox, spell check, "every public API is documented" script |
 | Translation | terminology glossary check, untranslated-segment detector, placeholder and tag integrity, length ratio bounds |
@@ -133,6 +111,6 @@ of work is done?**
   asks a model to grade itself, which is the exact failure this law exists to
   prevent. Either find the mechanical check, or do that work by hand.
 
-You can start small: one probe that checks existence and one that checks a
-format constraint is already better than nothing, and you will discover the
-sharper checks by watching what slips through.
+Start small: checking that the piece exists and respects one format
+constraint already beats nothing, and you will discover the sharper checks by
+watching what slips past you.
