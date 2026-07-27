@@ -251,6 +251,13 @@ A reasoning agent derives the verification itself, and does it better: given
 code, finds the token that guards it, and reports with line numbers. A
 `rg` probe would only have proved that an identifier exists somewhere.
 
+**Judging a card is also an instruction, not a script.** Before calling a card
+green: have it verified by an agent of a DIFFERENT family than the maker, which
+reads the card, the diff and the code and answers whether each requirement is
+genuinely met, with evidence. The gates already ran the build and tests, so the
+verifier judges BEHAVIOUR. That is the whole mechanism. `law/verify-card.sh`
+exists only because bash cannot read that paragraph and act on it.
+
 **Where probes still earn their place**: as MEMORY, not as judgment. A probe
 written for a defect that cost you dearly becomes a regression test replayed
 on every future card (`law/regression-probes.sh`). That is worth writing. A
