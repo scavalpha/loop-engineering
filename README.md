@@ -92,3 +92,16 @@ scripts/verify.sh              gates by hand, same as the law
 5. Infra failure (overload, network, quota) never blames the card.
 6. Full e2e before any merge, on a quiet machine, run by you.
 7. No run without the owner's explicit order. Supervise. The owner merges.
+
+## Relation to goal modes
+
+Claude Code `/goal`, Codex goals and Hermes goal mode are the same thing: a
+persistent objective re-judged by a MODEL until it says done (the "Ralph
+loop"). This skill makes compilers, tests and probes the judge instead, with
+atomic commit-or-reset per card. They compose rather than compete: give the
+goal a machine-checkable stop condition and let the loop supply the verdict.
+
+    /goal keep running loop cycles until `bash loop/verify.sh --e2e` exits 0
+          and no P0 card remains in loop/state/queue
+
+See the "Relation to goal modes" section of SKILL.md.

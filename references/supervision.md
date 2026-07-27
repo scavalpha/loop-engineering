@@ -29,6 +29,24 @@ Two hard-won rules if you use it:
   delete the plist.
 - Give the job its own log file per run, and grep it, do not trust silence.
 
+## Driving runs from a goal mode
+
+`/goal` (Claude Code), Codex goals and Hermes goal mode can carry the intent
+across restarts, which a bash driver with a deadline cannot: if the machine
+reboots mid-run, the driver dies with it. Two usable shapes:
+
+- **Goal drives the loop**: give the goal a machine-checkable stop condition
+  and let it relaunch runs, for example "keep running loop cycles until
+  `bash loop/verify.sh --e2e` exits 0 and no P0 card remains in the queue".
+  The model stops guessing and reads an exit code.
+- **Goal watches the loop**: the run stays a normal background driver, the
+  goal owns the close checklist ("when the driver exits, verify gates and
+  full e2e, then report what is mergeable").
+
+Never write a subjective stop condition, and remember that a goal relaunching
+runs is still running runs: same explicit owner order, same supervision, and
+always a turn budget so a wedged judge cannot spin the night away.
+
 ## What to watch
 
 The run log is greppable by design:

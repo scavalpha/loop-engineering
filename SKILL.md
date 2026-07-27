@@ -111,6 +111,48 @@ An optional independent checker reviews each green commit. By default the law
 picks the opposite family automatically when the other CLI is installed
 (`LOOP_CHECKER=auto`).
 
+## Relation to goal modes (/goal, Codex goals, Hermes goal mode)
+
+All three agents ship a persistent-goal feature: Claude Code `/goal` ("keep
+working until the condition is met"), Codex `thread_goals` (statuses active /
+paused / blocked / usage_limited / budget_limited / complete), Hermes
+`goals.py` (its docstring calls it "the Ralph loop"). They are the same
+mechanism: an objective survives across turns, an auxiliary model is asked
+"is this satisfied yet?", and a continuation prompt is fed back until it says
+yes or the turn budget runs out.
+
+**They are orthogonal to this skill, not a replacement, and the difference is
+the one that matters.** A goal mode makes a MODEL the judge. This skill makes
+compilers, tests and probes the judge, gives each card a fresh session, and
+makes the outcome atomic (one commit, or `git reset --hard`). A model asked
+whether its own work is done is exactly the mechanism that produces the lying
+greens rule 1 exists to prevent.
+
+**Compose them, and the weakness disappears.** A goal is only as good as its
+stop condition, so give it one that is machine-checkable instead of a matter
+of opinion. The loop supplies exactly that:
+
+```
+/goal keep running loop cycles until `bash loop/verify.sh --e2e` exits 0
+      and no P0 card remains in loop/state/queue
+```
+
+Now the goal layer contributes what it is genuinely good at (intent that
+survives restarts, budget and usage limits, resume), and the loop contributes
+the verdict. The judge no longer guesses: it reads an exit code.
+
+Two rules when composing:
+
+- Never let a goal's stop condition be a subjective claim ("until the feature
+  works well"). Point it at `verify.sh`, a probe, a queue count, a commit.
+- Keep the owner doctrine: a goal that relaunches runs is still a run. It
+  needs the same explicit order and the same supervision. Set a turn budget.
+
+Hermes goes furthest in this direction already: `run_kanban_goal_loop` drives
+one Ralph loop PER CARD with explicit `kanban_complete` / `kanban_block`
+terminators. That is convergent with the card model here, and it is the best
+place to plug a custom-agent loop if you use Hermes.
+
 ## Operating an existing loop
 
 When the user asks you to run, watch or debug a loop that is already installed:
