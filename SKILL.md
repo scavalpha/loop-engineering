@@ -158,6 +158,52 @@ one Ralph loop PER CARD with explicit `kanban_complete` / `kanban_block`
 terminators. That is convergent with the card model here, and it is the best
 place to plug a custom-agent loop if you use Hermes.
 
+### Why a goal mode cannot be the loop's engine
+
+Every goal implementation is scoped to a SESSION: Hermes says "the standing
+goal for this session" and persists it under `goal:<session_id>`, Codex keys
+its table by `thread_id`, Claude Code attaches it to the conversation. The
+loop is the opposite shape by design: the driver runs headless (launchd,
+nohup, cron) with NO agent session alive, and it spawns a FRESH session per
+card, then throws it away.
+
+That is not an implementation detail, it is the point:
+
+- one session per card keeps each context small and clean, so card 15 is not
+  polluted by the 14 before it, and cost stays bounded;
+- a card's failure cannot contaminate the next one, because there is nothing
+  shared to contaminate;
+- the driver survives what a session cannot: it is a process, restartable by
+  a scheduler, whereas a goal dies with its session.
+
+Running a 7-hour night as one standing goal means one session accumulating
+every diff, every error and every retry: context bloat, drift, and a bill
+that grows superlinearly. That is the failure mode the card model exists to
+avoid.
+
+### What this skill deliberately does not reinvent
+
+Measured on `scripts/loop.sh` (349 effective lines): the part a goal mode
+would replace is the pick-work-judge loop with its deadline and stop file,
+about 7 lines. Everything else has no equivalent in any goal mode, because
+goal modes were built to persist an intent, not to judge work:
+
+| Concern | Who owns it |
+| --- | --- |
+| Persist intent across restarts, budgets, resume | **goal mode** (use it) |
+| Recurring wall-clock scheduling | **cron / launchd / `/loop`** (use them) |
+| Task list for a human to follow | **the agent's own todo tools** (use them) |
+| Gates as the verdict, probes, discriminance | this skill |
+| Atomic commit-or-reset in a throwaway worktree | this skill |
+| Repair cards that cannot self-complete | this skill |
+| Infra failure classes that never blame the card | this skill |
+| Cross-family review, capped fix-lot generations | this skill |
+| Orphan reaping, e2e assembly truth | this skill |
+
+So: delegate scheduling and intent persistence to the tools that already do
+them, and keep this skill for the verdict. That is the composition described
+above, not a rewrite of either side.
+
 ## Operating an existing loop
 
 When the user asks you to run, watch or debug a loop that is already installed:

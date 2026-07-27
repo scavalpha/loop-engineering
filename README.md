@@ -104,4 +104,16 @@ goal a machine-checkable stop condition and let the loop supply the verdict.
     /goal keep running loop cycles until `bash loop/verify.sh --e2e` exits 0
           and no P0 card remains in loop/state/queue
 
-See the "Relation to goal modes" section of SKILL.md.
+Why not just use a goal mode as the engine? Because every goal is scoped to a
+SESSION (Hermes: "the standing goal for this session", Codex keys by thread,
+Claude by conversation), while the loop runs headless with no session alive and
+spawns a fresh one PER CARD. One night as one standing goal means one session
+accumulating every diff and retry: context bloat, drift, superlinear cost.
+
+Measured: of 349 effective lines in `scripts/loop.sh`, a goal mode would
+replace about 7 (the pick-work-judge loop and its deadline). The rest, gates,
+probes, atomic commit-or-reset, repair-card guards, infra failure classes,
+cross-family review, orphan reaping, has no equivalent there.
+
+Delegate scheduling to cron/launchd, intent persistence to the goal mode, and
+keep this skill for the verdict. See "Relation to goal modes" in SKILL.md.
