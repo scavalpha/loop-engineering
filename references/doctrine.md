@@ -145,7 +145,7 @@ Signatures and responses, each from a lost night or a burned window:
 | --- | --- | --- |
 | Provider overloaded | `529`, `503`, `overloaded`, `service unavailable` in the cycle log | pause ~3 min, retry same card, cap 3 episodes per run, then treat as real |
 | Network lost | `ECONNREFUSED`, `ENOTFOUND`, `ETIMEDOUT` AND the provider endpoint unreachable | pause in 5 min slices until the endpoint answers, card untouched |
-| Rate limit / quota | `rate limit`, `429`, `try again at HH:MM`, `quota` | reactive pause, honor the provider's own reset time when present, card untouched |
+| Rate limit / quota | `rate limit`, `429`, `try again at HH:MM`, `quota` | reactive pause in 20 min slices, card untouched (the full ancestor law parses the provider's own reset time, add that if your provider prints one) |
 | Fast-fail | two consecutive failures under 60 s and the maker does not answer a ping | it is infra, not the card: pause, do not route |
 
 **The proactive quota gate rule.** A gate that pauses on a quota ESTIMATE must

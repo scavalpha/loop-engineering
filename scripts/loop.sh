@@ -124,6 +124,7 @@ if [ -d "$WT/.git" ] || git -C "$WT" rev-parse --git-dir >/dev/null 2>&1; then
   git -C "$WT" merge --no-edit "$BASE" >/dev/null 2>&1 || {
     log "REFUSE: base does not merge cleanly into $BR, resolve by hand"; exit 1; }
 else
+  git worktree prune 2>/dev/null      # a deleted dir can leave a stale registration
   git branch "$BR" "$BASE" 2>/dev/null
   git worktree add "$WT" "$BR" >/dev/null 2>&1 || { log "REFUSE: worktree add failed"; exit 1; }
   log "worktree created: $WT (branch $BR from $BASE)"
@@ -147,13 +148,25 @@ for f in loop/tasks/*.md; do
   if green_in_history "$n" "$WT"; then
     log "seed-dedup: $n already green in history"; continue
   fi
+  # done/failed state persists across runs: re-seeding a parked card would burn
+  # a full maker cycle every run just to re-park it, and re-seeding an AUTODONE
+  # card re-autodones it noisily. Unpark by deleting the file in state/failed.
+  [ -f "loop/state/done/$n.md" ] && continue
+  if [ -f "loop/state/failed/$n.md" ]; then
+    log "seed-skip: $n parked in failed/ (unpark: rm loop/state/failed/$n.md)"; continue
+  fi
+  # a card that failed THROUGH escalation is parked under its zz-E- name: without
+  # this guard the original would re-seed every run and burn two cycles to re-park
+  if [ -f "loop/state/failed/zz-E-$n.md" ]; then
+    log "seed-skip: $n failed escalation (unpark: rm loop/state/failed/zz-E-$n.md)"; continue
+  fi
   cp "$f" "loop/state/queue/$n.md"
 done
 # lint at seed: malformed probes neutralized loudly, OR-probes flagged
 for q in loop/state/queue/*.md; do
   [ -f "$q" ] || continue
   qn="$(basename "$q" .md)"
-  probe_dry_lint "$q" "$WT" | sed "s/^/[lint $qn] /"
+  probe_dry_lint "$q" "$WT" 2>&1 | sed "s/^/[lint $qn] /"
   card_has_or_probes "$q" && log "[lint $qn] OR-probe: AUTODONE forbidden, will go through maker + gates"
   at="$(card_always_true_probes "$q")" && [ -n "$at" ] && log "[lint $qn] ALWAYS-TRUE probe, fix the card: $at"
 done
@@ -362,6 +375,9 @@ while :; do
       { cat "$CARD"; echo; echo "## PREVIOUS ATTEMPT (banked)";
         echo '~~~'; tail -20 "loop/wip/$NAME-$RUN.findings" 2>/dev/null; echo '~~~'; } \
         > "loop/state/queue/zz-E-$NAME.md"
+      # the escalated card inherits attempt 1, so the total is exactly 1 normal
+      # try + 1 escalated try (a fresh counter would silently grant a third)
+      echo 1 > "loop/state/attempts/zz-E-$NAME"
       rm -f "$CARD"
     else
       log "RED attempt $ATT: $NAME stays in queue for one retry"

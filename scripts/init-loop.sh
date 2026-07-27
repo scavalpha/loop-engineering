@@ -53,10 +53,12 @@ cat > loop/stack.sh <<EOF
 STACK_NAME="$(basename "$ROOT")"
 
 # --- maker agent: claude | codex | custom ---
+# Optional knobs stay COMMENTED when unused: an empty assignment here would
+# overwrite an environment override (the contract is sourced after env init).
 LOOP_AGENT=claude
-LOOP_MODEL=""                  # optional model override
-LOOP_ESCALATION_MODEL=""       # optional stronger model for retries (zz-E- cards)
 LOOP_CHECKER=auto              # independent reviewer: auto picks the OTHER family
+# LOOP_MODEL='claude-opus-5'           # optional model override
+# LOOP_ESCALATION_MODEL='claude-x'     # optional stronger model for retries (zz-E- cards)
 # custom agent example (Hermes or any CLI), used when LOOP_AGENT=custom:
 # LOOP_MAKER_TEMPLATE='hermes -z "\$(cat {PROMPT_FILE})"'
 

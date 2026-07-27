@@ -12,10 +12,13 @@ has a safe default (usually "feature off").
 ```bash
 STACK_NAME="my-project"          # informational, appears in reports
 LOOP_AGENT=claude                # claude | codex | custom
-LOOP_MODEL=""                    # optional model override for the maker
-LOOP_ESCALATION_MODEL=""         # optional stronger model for zz-E- retries
 LOOP_CHECKER=auto                # auto | off | claude | codex
-LOOP_MAKER_TEMPLATE=""           # custom agents only, see below
+# Optional knobs: set them with a VALUE or leave them commented out. Never
+# write an empty assignment: the contract is sourced after env init, so
+# LOOP_MODEL="" would silently erase an environment override.
+# LOOP_MODEL='claude-opus-5'         # model override for the maker
+# LOOP_ESCALATION_MODEL='claude-x'   # stronger model for zz-E- retries
+# LOOP_MAKER_TEMPLATE='...'          # custom agents only, see below
 ```
 
 Presets executed with the WORKTREE as cwd, prompt written to a temp file:
