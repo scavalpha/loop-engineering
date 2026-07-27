@@ -145,6 +145,11 @@ Two rules when composing:
 
 - Never let a goal's stop condition be a subjective claim ("until the feature
   works well"). Point it at `verify.sh`, a probe, a queue count, a commit.
+  Watch the wording each agent nudges you toward: Claude Code says "keep
+  working until the condition is met" (it asks for a condition), Codex says
+  "set a goal to keep pursuing" (it asks for an intent, and nothing prompts
+  you for a stop criterion). On Codex especially, write the checkable
+  condition yourself or the judge falls back to opinion.
 - Keep the owner doctrine: a goal that relaunches runs is still a run. It
   needs the same explicit order and the same supervision. Set a turn budget.
 
