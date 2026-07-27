@@ -1,9 +1,0 @@
-MATCH: should create|should render title|app\.spec|widget_test|component_test.*shell|AppComponent.*fail
----
-Les tests PAR DEFAUT du squelette decrivent l'ANCIEN shell (titre par defaut, composant
-racine d'origine). Tu as modifie ce shell (routing, page d'accueil, layout): mets a jour
-le spec par defaut pour qu'il decrive TON nouveau shell (ou remplace-le par un test
-minimal reel: le composant racine se cree et rend la nouvelle racine). Ne supprime pas
-le fichier de test, ne desactive pas la suite: adapte l'assertion. Piege releve sur 5
-echecs de carte socle (loop eagrement, 2026-07-08): le socle etait correct, seul le
-spec par defaut cassait.

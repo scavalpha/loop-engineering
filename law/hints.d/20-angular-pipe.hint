@@ -1,5 +1,0 @@
-MATCH: NG8004|No pipe found
----
-PIPE ERROR: a template uses a pipe whose class is not imported. Add it to the component's
-standalone imports array (number = DecimalPipe, date = DatePipe, currency = CurrencyPipe,
-percent = PercentPipe, async = AsyncPipe, all from '@angular/common'). Keep the pipe usage.

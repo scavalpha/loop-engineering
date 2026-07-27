@@ -1,4 +1,0 @@
-MATCH: is not a known element|NG8001|not a known property|NG8002
----
-UNKNOWN ELEMENT/PROPERTY: a component or directive used in the template is not imported. Add
-it to the component's standalone imports array, or remove the usage if it is not needed.

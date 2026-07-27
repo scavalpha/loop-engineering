@@ -1,4 +1,0 @@
-MATCH: NG5002|not terminated|Unexpected closing tag|implied end
----
-TEMPLATE TAG ERROR: an HTML tag in the template is not balanced. Find the unclosed or
-mismatched tag (often a <span> or <div>) and fix it so every tag opens and closes correctly.
