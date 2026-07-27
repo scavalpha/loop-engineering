@@ -91,7 +91,7 @@ PROBE: rg -q "searchDossiers" src/app/services/dossier.service.ts
 PROBE: rg -iq "apercu" src/app/pages/ged/ged.html
 PROBE: test -f docs/e2e-status.md
 PROBE: grep -q "RESULTAT: 0 failed" docs/e2e-status.md
-PROBE: cd credit-corporate-service && ./mvnw -q test
+PROBE: cd backend && ./mvnw -q test
 ```
 
 The `docs/e2e-status.md` pair is the repair-card pattern: the file does not
