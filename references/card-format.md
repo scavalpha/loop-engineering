@@ -1,5 +1,16 @@
 # Card format: units of work that cannot lie
 
+**Read this first.** A card states WHAT must be true when the work is done, in
+the product's language. It does NOT have to prescribe how to check it: a
+reasoning agent reads the project and derives that better than a frozen
+command. The PROBE lines described below are OPTIONAL, and they exist for two
+narrow purposes: driving a bash driver (which cannot reason), and recording a
+regression check for a defect that already cost you (see the memory section in
+SKILL.md). Writing probes to fill a form produces exactly the lies this
+document warns about: on the project this skill came from, 22 of 166 replayed
+probes had gone false, most by freezing an implementation the product later
+improved.
+
 A card is a markdown file in `loop/tasks/`, one card per file, kebab-case
 name with a numeric prefix that fixes its family and sort position, for
 example `20-export-csv-file-validation.md`.

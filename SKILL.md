@@ -1,6 +1,6 @@
 ---
 name: loop-engineering
-description: Build and operate an autonomous work loop on any local git project, with Claude Code, Codex or Hermes as the maker. Cards are picked, executed by an agent in a throwaway worktree, then judged by gates (build, tests, probes): green becomes a commit, red is reset. Works beyond code too (manuscripts, docs, datasets) wherever something mechanical can verify the work. Use when the user wants an overnight loop, a self-improving build loop, autonomous card-based development, or wants to install a loop on a repo. Triggers include "loop engineering", "overnight loop", "autonomous loop", "boucle autonome", "run cards".
+description: Build and operate an autonomous work loop on any local git project, with Claude Code, Codex or Hermes doing the work. You are given WHAT must be true, never the commands: read the project, derive how to build and test it, execute one card at a time in a throwaway worktree, verify with real builds and tests, commit green and reset red. Works beyond code (manuscripts, docs, datasets) wherever the work can be verified. Use for overnight loops, self-improving build loops, card-based autonomous development, or installing a loop on a repo. Triggers: "loop engineering", "overnight loop", "autonomous loop", "boucle autonome", "run cards".
 ---
 
 # Loop Engineering
