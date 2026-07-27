@@ -36,6 +36,7 @@ references/supervision.md    launch, monitor, close, failure classes
 references/agents.md         casting maker/checker/cartographer/critic
 references/getting-started.md from a spec document to a running loop
 references/beyond-code.md    loops on books, docs, datasets (non-code)
+references/native-mode.md    run the loop with no driver process (agent IS the driver)
 references/generic-vs-project.md  what travels vs what stays and is learned
 ```
 
