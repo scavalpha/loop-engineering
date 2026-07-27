@@ -83,8 +83,14 @@ bash ~/dev/loop-engineering/scripts/init-loop.sh
 8. CONFIRM before launching: state the casting, the deadline, what will be
    spent, and that greens land on a branch you will NOT merge for them.
 
-9. RUN, short and supervised: bash loop/loop-overnight.sh +1h
-   Then watch. Report the first green or the first anomaly as it happens.
+9. RUN. Two ways, pick with the owner:
+   - AGENT MODE (default, and what you should reach for first): you run the
+     loop yourself. Hold the intent with your goal feature, execute each card
+     in a SUB-AGENT so contexts stay isolated, run the gates yourself, commit
+     or reset. No process to babysit, failures visible immediately. See
+     references/native-mode.md.
+   - DRIVER MODE (unattended nights): bash loop/loop-overnight.sh +1h, then
+     watch the log. Choose this when nobody will be awake, not by default.
 
 10. CLOSE: verify independently (gates + runtime suite), summarise what is
     mergeable, and let the OWNER merge. You never merge.
@@ -177,40 +183,70 @@ meaningless.
 **What you must never do at onboarding**: launch a run. Setting up and running
 are two decisions, and the second belongs to the owner (see rule 10).
 
-## The ten iron rules
+## What actually matters (and what is scaffolding)
 
-These are the condensed doctrine. The full reasoning is in
-`references/doctrine.md`, read it before changing the law.
+This law grew around a WEAK maker: a small local model that had to be told
+everything and defended against. Much of its machinery is the shadow of that
+executor. If your maker is a reasoning model, most of it is optional, and
+treating it as mandatory makes things worse, not safer.
 
-1. **The gate decides, never the maker.** A card is green when the project
-   builds, the tests pass and every probe exits 0. Prose claims are noise.
-2. **Atomic or nothing.** Work happens in a disposable worktree. Green becomes
-   one commit. Red becomes `git reset --hard`. There is no partially-done card.
-3. **Probes are AND, discriminant, executable.** One assertion per PROBE line.
-   No `|` alternation inside a pattern, no `||` between commands, no prose, no
-   always-true. A probe that already passes before the work exists is a lie.
-4. **A repair card can never auto-complete.** If its probes already pass, the
-   probes are wrong, not the defect gone. Repair cards leave the queue only
-   when their fix is a commit in history.
-5. **Judge and maker come from different families.** Claude makes, Codex
-   reviews, or the reverse. A model reviewing its own family finds nothing.
-6. **Regression outranks new features.** Reviewer findings on shipped work
-   become P0 fix cards. Fix generations are capped (default 2) with counters
-   persisted outside the worktree, and the fix of a fix keeps the SAME base
-   name, otherwise the cap counts nothing.
-7. **Per-card gates do not see assembly breakage.** Run the full end-to-end
-   suite regularly and always before a merge, on a quiet machine. Ten green
-   cards can still assemble into a broken product.
-8. **Infra failure is never the card's fault.** Provider overload (529/503),
-   lost network, rate limits: pause and retry the same card, never blame it,
-   never route it to escalation. And a proactive quota gate must never hold a
-   night hostage on a frozen metric: if the reading does not move, resume.
-9. **Reap everything, every cycle.** Kill worktree orphans (JVMs, dev servers,
-   headless browsers) at the top of each cycle and at close. A saturated
-   machine produces false reds that look exactly like real regressions.
-10. **The owner launches, the owner merges.** Never start a run without an
-    explicit order. Supervise every run. An anomaly caught by a safety net is
-    still an anomaly: diagnose it now, not tomorrow.
+**The four things that survive any maker.** These are not instructions to an
+executor, they are facts and structure:
+
+1. **Gates.** Nobody can *reason* that a project compiles. You run the build,
+   the tests, the runtime suite. Exit codes, not opinions. This is the only
+   thing that makes a green trustworthy.
+2. **Atomicity.** Green becomes one commit, red becomes `git reset --hard`.
+   Structural discipline, enforced by git, not by anyone's good intentions.
+3. **Written memory.** A session does not remember card 3 at card 12, nor last
+   night at all. Cards, delivered-probe replay, learned skills and hints are
+   the loop's memory. Files, in git.
+4. **A judge from another family.** Not because models lie, but because they
+   have blind spots, and a reviewer sharing the maker's idiom finds nothing.
+
+**What is scaffolding for a weak executor**, useful when your maker cannot be
+trusted to verify its own work, unnecessary friction when it can:
+
+- mandatory PROBE lines on every card,
+- probe linting, discriminance checks, AUTODONE and its guards,
+- prescribing HOW to verify rather than WHAT must be true.
+
+A reasoning agent derives the verification itself, and does it better: given
+"an aborted preview must not be overwritten by a late response", it reads the
+code, finds the token that guards it, and reports with line numbers. A
+`rg` probe would only have proved that an identifier exists somewhere.
+
+**Where probes still earn their place**: as MEMORY, not as judgment. A probe
+written for a defect that cost you dearly becomes a regression test replayed
+on every future card (`law/regression-probes.sh`). That is worth writing. A
+probe written to satisfy a form is not: measured on this very project, 22 of
+166 replayed probes had gone false, most of them because they froze an
+implementation the product later improved.
+
+So: describe WHAT must be true, let the agent decide HOW to check it, run the
+gates yourself, and write down only what must outlive the session.
+
+## The ten rules
+
+Still true regardless of maker or mode:
+
+1. **The gate decides, never the maker's claim.** Run the commands.
+2. **Atomic or nothing.** One commit, or a full reset. Never half-applied work.
+3. **State WHAT must be true.** If you also pin HOW to verify it, make sure
+   that check fails today, or it proves nothing.
+4. **A repair card describes an OBSERVED defect.** If its checks already pass,
+   the checks are wrong, not the defect gone.
+5. **Judge and maker from different families.** A same-family review is worse
+   than none: it manufactures confidence.
+6. **A constated regression outranks any new feature.**
+7. **Per-card gates do not see assembly breakage.** Run the full suite
+   regularly and always before a merge, on a quiet machine.
+8. **Infra failure is never the card's fault.** Overload, network, quota:
+   pause and retry, never blame, never escalate on it.
+9. **Reap what you spawn**, including the maker process itself: a maker whose
+   driver died keeps writing into the worktree with nobody left to judge it.
+10. **The owner launches and the owner merges.** Supervise. An anomaly caught
+    by a safety net is still an anomaly: diagnose it now.
 
 ## Choosing the maker agent
 
