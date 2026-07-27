@@ -239,96 +239,64 @@ secrets, and never run it outside a worktree.
 
 ## Relation to goal modes (/goal, Codex goals, Hermes goal mode)
 
-All three agents ship a persistent-goal feature: Claude Code `/goal` ("keep
-working until the condition is met"), Codex `thread_goals` (statuses active /
-paused / blocked / usage_limited / budget_limited / complete), Hermes
-`goals.py` (its docstring calls it "the Ralph loop"). They are the same
-mechanism: an objective survives across turns, an auxiliary model is asked
-"is this satisfied yet?", and a continuation prompt is fed back until it says
-yes or the turn budget runs out.
+**A card IS a goal.** That is the shortest way to understand this skill.
 
-**They are orthogonal to this skill, not a replacement, and the difference is
-the one that matters.** A goal mode makes a MODEL the judge. This skill makes
-compilers, tests and probes the judge, gives each card a fresh session, and
-makes the outcome atomic (one commit, or `git reset --hard`). A model asked
-whether its own work is done is exactly the mechanism that produces the lying
-greens rule 1 exists to prevent.
+All three agents ship a persistent-goal feature: Claude Code `/goal`, Codex
+`thread_goals`, Hermes `goals.py` (which calls itself "the Ralph loop"). Each
+holds an objective across turns and re-judges it until satisfied. A card holds
+exactly the same thing, on a better substrate:
 
-**Compose them, and the weakness disappears.** A goal is only as good as its
-stop condition, so give it one that is machine-checkable instead of a matter
-of opinion. The loop supplies exactly that:
+| | Native goal | A card |
+| --- | --- | --- |
+| Where it lives | a local DB (SQLite, SessionDB keyed by session id) | a markdown file, versioned in git |
+| Survives | process death, if something resumes the session | reboot, machine change, being read by any tool |
+| Stop condition | a model asked "is this satisfied?" | PROBES: commands that exit 0 or do not |
+| Portability | tied to one CLI and its store | any agent can read a markdown file |
+| Reviewable | opaque | diffable, reviewable, commentable |
+
+So this is not an alternative to goal-oriented work, it IS goal-oriented work,
+with the goal written where it cannot be lost and a stop condition that cannot
+be talked into passing.
+
+### Two ways to run the same thing
+
+**Driver mode** (`law/loop-overnight.sh`): a headless process picks the next
+card, spawns a fresh agent session for it, runs the gates, commits or resets.
+Survives session death; a launchd/cron resurrector restarts it if it dies.
+
+**Native mode**: an agent does the same loop itself, using a goal to hold the
+intent and a SUB-AGENT per card to keep contexts isolated:
 
 ```
-/goal keep running loop cycles until `bash loop/verify.sh --e2e` exits 0
-      and no P0 card remains in loop/state/queue
+/goal Work the loop on this repo: take the highest-priority card from
+      loop/state/queue, execute it in a sub-agent, run the gates, commit if
+      green else git reset --hard, repeat until `bash loop/verify.sh` exits 0
+      and no P0 card remains.
 ```
 
-Now the goal layer contributes what it is genuinely good at (intent that
-survives restarts, budget and usage limits, resume), and the loop contributes
-the verdict. The judge no longer guesses: it reads an exit code.
+The sub-agent is what makes this viable: each card gets its own context and
+throws it away, which is exactly what the driver achieves by spawning a fresh
+CLI session per card.
 
-Two rules when composing:
+Both modes need a system-level restarter to survive a machine reboot (launchd,
+systemd, cron); neither is magic there. Hermes even ships a cron for it, and
+the driver has a resurrector for the same reason.
 
-- Never let a goal's stop condition be a subjective claim ("until the feature
-  works well"). Point it at `verify.sh`, a probe, a queue count, a commit.
-  Watch the wording each agent nudges you toward: Claude Code says "keep
-  working until the condition is met" (it asks for a condition), Codex says
-  "set a goal to keep pursuing" (it asks for an intent, and nothing prompts
-  you for a stop criterion). On Codex especially, write the checkable
-  condition yourself or the judge falls back to opinion.
-- Keep the owner doctrine: a goal that relaunches runs is still a run. It
-  needs the same explicit order and the same supervision. Set a turn budget.
+Choose driver mode for long unattended nights, budget discipline and the fact
+that a shell script cannot talk itself into accepting bad work. Choose native
+mode for short supervised sessions, exploration, or when you want to start
+without installing anything. The doctrine is identical in both: gates decide,
+green is a commit, red is a reset, the owner merges.
 
-Hermes goes furthest in this direction already: `run_kanban_goal_loop` drives
-one Ralph loop PER CARD with explicit `kanban_complete` / `kanban_block`
-terminators. That is convergent with the card model here, and it is the best
-place to plug a custom-agent loop if you use Hermes.
+### Writing the stop condition
 
-### Why a goal mode cannot be the loop's engine
-
-Every goal implementation is scoped to a SESSION: Hermes says "the standing
-goal for this session" and persists it under `goal:<session_id>`, Codex keys
-its table by `thread_id`, Claude Code attaches it to the conversation. The
-loop is the opposite shape by design: the driver runs headless (launchd,
-nohup, cron) with NO agent session alive, and it spawns a FRESH session per
-card, then throws it away.
-
-That is not an implementation detail, it is the point:
-
-- one session per card keeps each context small and clean, so card 15 is not
-  polluted by the 14 before it, and cost stays bounded;
-- a card's failure cannot contaminate the next one, because there is nothing
-  shared to contaminate;
-- the driver survives what a session cannot: it is a process, restartable by
-  a scheduler, whereas a goal dies with its session.
-
-Running a 7-hour night as one standing goal means one session accumulating
-every diff, every error and every retry: context bloat, drift, and a bill
-that grows superlinearly. That is the failure mode the card model exists to
-avoid.
-
-### What this skill deliberately does not reinvent
-
-Measured on the driver: the part a goal mode would replace is the
-pick-work-judge loop with its deadline and stop file, a few dozen lines out of
-thousands. Everything else has no equivalent in any goal mode, because
-goal modes were built to persist an intent, not to judge work:
-
-| Concern | Who owns it |
-| --- | --- |
-| Persist intent across restarts, budgets, resume | **goal mode** (use it) |
-| Recurring wall-clock scheduling | **cron / launchd / `/loop`** (use them) |
-| Task list for a human to follow | **the agent's own todo tools** (use them) |
-| Gates as the verdict, probes, discriminance | this skill |
-| Atomic commit-or-reset in a throwaway worktree | this skill |
-| Repair cards that cannot self-complete | this skill |
-| Infra failure classes that never blame the card | this skill |
-| Cross-family review, capped fix-lot generations | this skill |
-| Orphan reaping, e2e assembly truth | this skill |
-
-So: delegate scheduling and intent persistence to the tools that already do
-them, and keep this skill for the verdict. That is the composition described
-above, not a rewrite of either side.
+Whatever mode you use, never let the stop condition be an opinion ("until the
+feature works well"). Point it at something that exits 0: `verify.sh`, a
+probe, a queue count, a commit in history. Note the wording each agent nudges
+you toward: Claude Code says "keep working until the condition is met" (it
+asks for a condition), Codex says "set a goal to keep pursuing" (it asks for
+an intent). On Codex especially, write the checkable criterion yourself, or
+the judge quietly falls back to opinion.
 
 ## Operating an existing loop
 
