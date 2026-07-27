@@ -30,6 +30,38 @@ in the product's language. The spec (`docs/domain-rules.md`) says what the
 product is; cards say what to do next. Both are files in git, because that is
 what survives you.
 
+## Start by looking at the whole thing
+
+Do not open the first card and start working. Look at where the project stands
+and what is still queued, together, and decide what deserves the next hours.
+
+That review answers four questions:
+
+- **What does the spec still not cover?** Compare it to what the code actually
+  does, not to what earlier cards claimed.
+- **Which queued cards are already satisfied?** Work gets done under other
+  names, by side effects, by earlier fixes. Retire them now rather than
+  spending a cycle each discovering it.
+- **Which have gone stale?** A card written against an implementation that has
+  since changed for the better describes a world that no longer exists.
+  Rewrite it around the behaviour, or drop it.
+- **What actually matters next?** A queue is not a plan. Order it by what the
+  product needs, and say what you are deliberately not doing.
+
+Do this at the start of a run, and again whenever the queue stops matching the
+project, which happens faster than anyone expects.
+
+**Why it matters more than it sounds.** On the project this comes from, the
+queue held 128 cards and the review only ever ran when it emptied, so it never
+ran. Two consecutive runs then spent their whole window on cards whose work had
+already been done: thirty-six minutes of a strong model, zero lines changed.
+Nothing was broken; nobody had looked.
+
+The same review keeps the memory honest. Recorded checks rot: 22 of 166 had
+silently gone false, most of them freezing an implementation the product had
+rightly improved. A check that fails because the product got better is not a
+regression, it is a check to delete.
+
 ## What has actually gone wrong
 
 Every item below cost a night, a lost day, or shipped a defect.
