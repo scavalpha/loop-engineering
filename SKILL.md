@@ -43,6 +43,57 @@ The law is VENDORED into the project at install time: afterwards the project
 is autonomous, and `sync-law.sh` re-vendors a newer version on demand without
 ever touching `loop/stack.sh`, your cards or your state.
 
+## The request you will most often receive
+
+> "Install the loop engineering skill and start a loop on this project."
+
+That single sentence is an order to SET UP, and an order to run the FIRST run
+once setup is proven. Here is the whole sequence. Do not skip steps, and do
+not reorder them: each one exists because skipping it wasted a night.
+
+```bash
+# 1. the skill itself (skip if already installed)
+git clone <skill-repo> ~/dev/loop-engineering
+ln -s ~/dev/loop-engineering ~/.claude/skills/loop-engineering   # Claude Code
+# Codex: add a line in AGENTS.md pointing at the SKILL.md
+# Hermes: point your agent at the SKILL.md
+
+# 2. install the law into THIS project (from its root)
+bash ~/dev/loop-engineering/scripts/init-loop.sh
+```
+
+```
+3. INTERVIEW the owner (see the section below). Detect the CLIs and the stack
+   silently, then ask what you cannot observe: maker, checker, project type,
+   where the spec lives, runtime gate, first-run length, environment needs.
+
+4. WRITE loop/stack.sh from their answers. Never invent gates: ask, or read
+   the project's CI config and confirm what you found.
+
+5. WRITE docs/domain-rules.md if they have a spec elsewhere (copy it in) or
+   help them draft one. The cartographer needs it to produce cards.
+
+6. PROVE the base: bash loop/verify.sh must be GREEN on an untouched tree.
+   Red base => STOP and report. Every verdict would be meaningless.
+
+7. SEED 2 or 3 small cards, over-probed, from their spec. Lint them: each
+   probe must FAIL today (run them and show it).
+
+8. CONFIRM before launching: state the casting, the deadline, what will be
+   spent, and that greens land on a branch you will NOT merge for them.
+
+9. RUN, short and supervised: bash loop/loop-overnight.sh +1h
+   Then watch. Report the first green or the first anomaly as it happens.
+
+10. CLOSE: verify independently (gates + runtime suite), summarise what is
+    mergeable, and let the OWNER merge. You never merge.
+```
+
+If any step cannot be satisfied (no coding CLI installed, not a git repo, no
+test command exists, gates red), stop there and say precisely what is missing.
+A loop set up on a broken base produces confident garbage, which is worse than
+no loop.
+
 ## How to read this skill (you are an agent, not a copier)
 
 Two things are shipped here and they have very different weights.
@@ -124,31 +175,6 @@ meaningless.
 
 **What you must never do at onboarding**: launch a run. Setting up and running
 are two decisions, and the second belongs to the owner (see rule 10).
-
-## Quickstart
-
-From the root of the target project:
-
-```bash
-bash <skill-dir>/scripts/init-loop.sh
-```
-
-This vendors the law into `loop/`, writes a `stack.sh` skeleton with what it
-could detect, and creates `docs/domain-rules.md` (the spec the cartographer
-reads). Then:
-
-1. Fill `loop/stack.sh`: casting, gate commands, `STACK_BRIEF`. If you are an
-   agent doing this for someone, run the onboarding interview above first.
-2. Write the spec in `docs/domain-rules.md` (rules and use cases, not tasks).
-   The cartographer turns it into cards when the queue runs dry.
-3. Seed 2 or 3 small cards yourself for the first run (read
-   `references/card-format.md`: bad probes are the top cause of wasted nights).
-4. Prove the base is sound: `bash loop/verify.sh` must be GREEN on a clean
-   tree. A loop on a red base makes every verdict meaningless.
-5. First run, short and supervised: `bash loop/loop-overnight.sh +1h`
-6. Watch it: `tail -f loop/logs/*.log`. Never fire-and-forget.
-7. When it closes: verify independently (gates + full runtime suite, quiet
-   machine), then YOU merge the loop branch. The loop never merges.
 
 ## The ten iron rules
 
