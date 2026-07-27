@@ -1,123 +1,113 @@
 #!/usr/bin/env bash
-# init-loop.sh, scaffold the loop into the current git repository.
+# init-loop.sh, install the shared law into the current git repository.
 # Run from the target repo root:  bash <skill-dir>/scripts/init-loop.sh
-# Creates loop/ with the law scripts (vendored, the project stays autonomous),
-# a stack.sh pre-filled by stack detection, and an example card.
+#
+# Vendors the full law into loop/ (the project stays autonomous afterwards),
+# writes a stack.sh SKELETON pre-filled from stack detection, and creates the
+# spec file the cartographer reads. It deliberately does NOT guess your gates:
+# an agent following SKILL.md interviews you and fills them in.
 set -u
-SKILL_SCRIPTS="$(cd "$(dirname "$0")" && pwd)"
-ROOT="$(pwd)"
+SKILL="$(cd "$(dirname "$0")/.." && pwd)"
 git rev-parse --git-dir >/dev/null 2>&1 || { echo "run me from the root of a git repository"; exit 1; }
-[ -d loop ] && { echo "loop/ already exists here, refusing to overwrite"; exit 1; }
+[ -d loop ] && { echo "loop/ already exists here. To update the law: bash $SKILL/scripts/sync-law.sh"; exit 1; }
 
-mkdir -p loop/tasks
-cp "$SKILL_SCRIPTS/loop.sh" "$SKILL_SCRIPTS/lib.sh" "$SKILL_SCRIPTS/probe-lint.sh" "$SKILL_SCRIPTS/verify.sh" loop/
-chmod +x loop/*.sh
+mkdir -p loop/tasks loop/tests docs
+cp "$SKILL"/law/*.sh "$SKILL"/law/*.mjs "$SKILL"/law/*.md loop/ 2>/dev/null
+cp "$SKILL"/law/LAW-VERSION loop/ 2>/dev/null
+cp "$SKILL"/law/tests/*.sh loop/tests/ 2>/dev/null
+chmod +x loop/*.sh loop/tests/*.sh 2>/dev/null
 
-# ---------- stack detection (best effort, edit the result) ----------
-GATES=""; INSTALL=""; SENTINEL=""; MANIFEST=""; LOCKSYNC=""; BRIEF_HINT=""
-if [ -f package.json ]; then
-  GATES="  'npm run build --if-present'\n  'npm test --if-present'"
-  INSTALL="npm ci --no-audit --no-fund"; SENTINEL="node_modules"
-  MANIFEST="package.json"; LOCKSYNC="npm install --package-lock-only --no-audit --no-fund"
-  BRIEF_HINT="Node project"
-fi
-if [ -f pom.xml ]; then
-  MVN="./mvnw"; [ -x ./mvnw ] || MVN="mvn"
-  GATES="${GATES:+$GATES\n}  '$MVN -q test'"
-  BRIEF_HINT="${BRIEF_HINT:+$BRIEF_HINT + }Maven project"
-fi
-if [ -f build.gradle ] || [ -f build.gradle.kts ]; then
-  GATES="${GATES:+$GATES\n}  './gradlew test'"
-  BRIEF_HINT="${BRIEF_HINT:+$BRIEF_HINT + }Gradle project"
-fi
-if [ -f Cargo.toml ]; then
-  GATES="${GATES:+$GATES\n}  'cargo build'\n  'cargo test'"
-  BRIEF_HINT="${BRIEF_HINT:+$BRIEF_HINT + }Rust project"
-fi
-if [ -f go.mod ]; then
-  GATES="${GATES:+$GATES\n}  'go build ./...'\n  'go test ./...'"
-  BRIEF_HINT="${BRIEF_HINT:+$BRIEF_HINT + }Go project"
-fi
-if [ -f pyproject.toml ] || [ -f setup.py ]; then
-  GATES="${GATES:+$GATES\n}  'python -m pytest -q'"
-  BRIEF_HINT="${BRIEF_HINT:+$BRIEF_HINT + }Python project"
-fi
-[ -z "$GATES" ] && GATES="  'echo EDIT-ME: add your build and test commands && false'"
+# ---------- detection (a hint for the interview, never a silent decision) ----------
+AGENTS=""; for c in claude codex hermes; do command -v "$c" >/dev/null 2>&1 && AGENTS="$AGENTS $c"; done
+STACKS=""
+[ -f package.json ]   && STACKS="$STACKS node"
+[ -f pom.xml ]        && STACKS="$STACKS maven"
+[ -f build.gradle ] || [ -f build.gradle.kts ] && STACKS="$STACKS gradle"
+[ -f Cargo.toml ]     && STACKS="$STACKS rust"
+[ -f go.mod ]         && STACKS="$STACKS go"
+[ -f pyproject.toml ] || [ -f setup.py ] && STACKS="$STACKS python"
+[ -f pubspec.yaml ]   && STACKS="$STACKS flutter"
+ls *.xcodeproj >/dev/null 2>&1 && STACKS="$STACKS xcode"
 
-# ---------- stack.sh ----------
+# ---------- contract skeleton ----------
 cat > loop/stack.sh <<EOF
 #!/usr/bin/env bash
-# Stack contract: the ONE file that adapts the loop to this project.
-# The law (loop.sh) never hardcodes stack commands. Spec: references/stack-contract.md.
+# STACK CONTRACT: the ONE file that adapts the shared law to THIS project.
+# The law in loop/*.sh is generic and must never be edited here.
+# Full spec: loop/STACK-CONTRACT.md   Guide: <skill>/references/stack-contract.md
+# Detected on install: agents:${AGENTS:- none} | stack:${STACKS:- unknown}
 
-STACK_NAME="$(basename "$ROOT")"
+STACK_NAME="$(basename "$(pwd)")"
+PROJECT_DOMAIN="EDIT ME: one line describing what this product IS, in product words"
+ARCH_PROFILE="web-fullstack"      # web-fullstack | api-only | mobile | lib | cli
 
-# --- maker agent: claude | codex | custom ---
-# Optional knobs stay COMMENTED when unused: an empty assignment here would
-# overwrite an environment override (the contract is sourced after env init).
-LOOP_AGENT=claude
-LOOP_CHECKER=auto              # independent reviewer: auto picks the OTHER family
-# LOOP_MODEL='claude-opus-5'           # optional model override
-# LOOP_ESCALATION_MODEL='claude-x'     # optional stronger model for retries (zz-E- cards)
-# custom agent example (Hermes or any CLI), used when LOOP_AGENT=custom:
-# LOOP_MAKER_TEMPLATE='hermes -z "\$(cat {PROMPT_FILE})"'
+# --- casting: which agent plays which role (see references/agents.md) ---
+LOOP_MAKER_KIND=claude            # claude | codex | hermes
+LOOP_MAKER=""                     # model id, empty = the CLI default
+LOOP_LOT_CHAIR=codex              # the CHECKER: must be a DIFFERENT family than the maker
+LOOP_NO_LOCAL_LLM=1               # 1 = frontier casting, no local model needed
 
-# --- gates: the verdict. Must pass on the untouched tree. Mock external services. ---
-GATE_CMDS=(
-$(printf "$GATES")
-)
+# --- where the code lives ---
+BACK_DIR="backend"
+FRONT_DIR="frontend"
 
-# --- full runtime suite (optional): run at close and for 00-E2E repair cards ---
-E2E_CMD=''
-# Only if E2E serves a BUILT artifact (stale dist = phantom failures):
-E2E_BUILD_ARTIFACT=''   # e.g. front/dist/index.html
-E2E_BUILD_SRC=''        # e.g. front/src
-E2E_PREBUILD_CMD=''     # e.g. cd front && npx ng build
+# --- the gates: THE verdict. Must be green on an untouched tree. ---
+GATE_FRONT_CMD='EDIT ME: your front build, e.g. npx ng build'
+GATE_BACK_CMD='EDIT ME: your back tests, e.g. ./mvnw -q test'
 
-# --- install and lock discipline ---
-STACK_INSTALL_CMD='${INSTALL}'
-STACK_INSTALL_SENTINEL='${SENTINEL}'
-STACK_LOCK_MANIFEST='${MANIFEST}'
-STACK_LOCK_SYNC_CMD='${LOCKSYNC}'
+# --- install (optional) ---
+STACK_INSTALL_CMD=''
+STACK_INSTALL_SENTINEL=''
 
-# --- one paragraph injected into every maker prompt: contracts, conventions, traps ---
-STACK_BRIEF='${BRIEF_HINT:-EDIT ME}: describe layout, conventions, and the traps a
-newcomer would hit. This is the highest-leverage paragraph of the loop.'
+# --- environment this project actually needs (leave off if it needs none) ---
+DB_REQUIRED=0
+# DB_HEALTH_CMD='pg_isready -h localhost -p 5432'
+
+# --- runtime gate (optional but this is what makes a loop trustworthy) ---
+E2E_SENTINEL=''                   # e.g. frontend/node_modules/@playwright
+# E2E_FRONT_PORT='4318'
+
+# --- injected into EVERY maker prompt: conventions, contracts, traps ---
+STACK_BRIEF='EDIT ME: frameworks and versions, directory layout, naming and
+language conventions, how tests are run, what must never be touched. This is
+the highest-leverage paragraph in the whole setup.'
 EOF
 
-# ---------- example card ----------
-cat > loop/tasks/10-example-card.md <<'EOF'
-# Example card, replace me
+# ---------- the spec the cartographer reads ----------
+[ -f docs/domain-rules.md ] || cat > docs/domain-rules.md <<'EOF'
+# Business rules and use cases
 
-SCOPE: full
-VALUE: P2
+The cartographer compares THIS file to the code that actually exists, and
+emits the next cards. Write rules and use cases, not tasks.
 
-USE CASE:
-One observable capability, in product language. Delete this card once you have
-written real ones (read references/card-format.md in the skill first).
+## Use cases
+- UC1 ...: who does what, and what they see afterwards
+- UC2 ...
 
-DONE WHEN:
-- An observable criterion a human can check on the running app
-- Tests prove it automatically, with external services MOCKED
-
-PROBE: rg -q "a-token-that-does-not-exist-yet" src
-PROBE: test -f a/file/the/work/will/create
+## Rules
+- A rule is a sentence that can be violated by code. "Prices are stored in
+  cents, never floats" is a rule. "The app should be fast" is not.
 EOF
 
-# ---------- gitignore ----------
 { echo "loop/state/"; echo "loop/wip/"; echo "loop/logs/"; echo "loop/lot-gen/"; echo "loop/STOP"; } >> .gitignore
 
 cat <<EOF
 
-Loop scaffolded.
+Law installed (version $(cat loop/LAW-VERSION 2>/dev/null || echo '?')).
+Detected: agents:${AGENTS:- NONE FOUND} | stack:${STACKS:- unknown}
 
-Next steps:
-  1. Edit loop/stack.sh (agent, gates, STACK_BRIEF). Gates must be green on a clean tree.
-  2. Write real cards in loop/tasks/ (spec: references/card-format.md in the skill).
-  3. Lint them:        bash loop/probe-lint.sh loop/tasks/*.md
-  4. Test the wiring:  LOOP_DRY_RUN=1 bash loop/loop.sh 5m
-  5. First real run:   bash loop/loop.sh 1h    (supervised: tail -f loop/logs/run-*.log)
-  6. Verify then merge yourself: bash loop/verify.sh --e2e && git merge --no-ff loop/work
+Three files decide everything now:
+  loop/stack.sh          how to build and test THIS project   <- fill it in
+  docs/domain-rules.md   your spec, read by the cartographer  <- fill it in
+  loop/tasks/*.md        cards (or let the cartographer write them)
 
-Doctrine: no run without the owner's order, supervise every run, the owner merges.
+Next: ask your coding agent to "set up the loop on this project". It will
+interview you (maker, checker, project type, gates, runtime test) and fill
+loop/stack.sh for you. Then:
+
+  bash loop/verify.sh                 # gates must be GREEN on the clean tree
+  bash loop/loop.sh 1h                # first run, short and supervised
+
+Doctrine: no run without the owner's explicit order, supervise every run,
+the owner merges.
 EOF

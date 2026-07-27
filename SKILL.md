@@ -29,6 +29,56 @@ references/stack-contract.md the one file that adapts the loop to any stack
 references/supervision.md    launch, monitor, close, failure classes
 ```
 
+## Onboarding: interview the owner before writing anything
+
+When someone asks you to set up a loop on their project, do NOT guess their
+setup and do NOT dump a config on them. Detect what you can, then ASK the rest
+as multiple-choice questions (use the AskUserQuestion tool if you have it, a
+numbered list otherwise). One pass, then you write `loop/stack.sh` yourself.
+
+**First, detect silently** (never ask what you can observe):
+
+```bash
+for c in claude codex hermes; do command -v $c >/dev/null && echo "have: $c"; done
+ls package.json pom.xml build.gradle* Cargo.toml go.mod pyproject.toml \
+   pubspec.yaml *.xcodeproj Gemfile 2>/dev/null      # stack fingerprint
+git rev-parse --show-toplevel 2>/dev/null            # is it a git repo at all
+ls docs/*.md README.md 2>/dev/null                   # is there a spec already
+```
+
+**Then ask, in this order.** Offer only options that the detection supports:
+proposing Codex to someone who does not have it wastes their time.
+
+1. **Maker** (the agent that writes the code): the CLIs found, one per option.
+   Recommend their strongest coding model. Say what it costs: a frontier maker
+   on a 7-hour night is expensive, a local model via Hermes is nearly free and
+   noticeably weaker.
+2. **Checker** (reviews each green diff): offer the OTHER families found, plus
+   "none". State the rule: same family as the maker finds nothing, so if only
+   one CLI exists, "none" is the honest answer.
+3. **Project type**: web fullstack / API only / mobile / CLI / library. This
+   sets `ARCH_PROFILE` and decides whether screen-oriented organs run at all.
+4. **The spec**: "you have a requirements doc" (ask for the path, it becomes
+   `docs/domain-rules.md`) / "no, help me write one" / "skip, I will write
+   cards myself". The cartographer needs this to generate cards.
+5. **Runtime gate**: Playwright / Detox or Maestro / other command / none.
+   If none, warn plainly: build and unit tests only means assembly
+   regressions reach them late.
+6. **Run length for the first run**: 1h supervised (recommended) / 2h / a full
+   night. Never propose a night as the first run on a fresh repo.
+7. **Environment needs**: does the project need a database or another service
+   up to run its tests? (yes, ask for the health command / no). This sets
+   `DB_REQUIRED` and prevents both a false "REFUSE" and a silent failure.
+
+**Then, without asking**: derive the gate commands from the stack fingerprint,
+write `loop/stack.sh`, run `bash loop/verify.sh` to prove the gates are green
+on the untouched tree, and report what you configured. If a gate is red on the
+clean tree, STOP and say so: a loop on a red base makes every verdict
+meaningless.
+
+**What you must never do at onboarding**: launch a run. Setting up and running
+are two decisions, and the second belongs to the owner (see rule 10).
+
 ## Quickstart
 
 From the root of the target project:
