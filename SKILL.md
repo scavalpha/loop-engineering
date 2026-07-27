@@ -1,6 +1,6 @@
 ---
 name: loop-engineering
-description: Build and operate an autonomous engineering loop on any local git project, with Claude Code, Codex, or any agent CLI as the maker. Use when the user wants an overnight coding loop, a self-improving build loop, autonomous card-based development, or wants to port a loop to a new repo. Triggers include "loop engineering", "overnight loop", "autonomous loop", "engineering loop", "boucle autonome", "run cards".
+description: Build and operate an autonomous work loop on any local git project, with Claude Code, Codex or Hermes as the maker. Cards are picked, executed by an agent in a throwaway worktree, then judged by gates (build, tests, probes): green becomes a commit, red is reset. Works beyond code too (manuscripts, docs, datasets) wherever something mechanical can verify the work. Use when the user wants an overnight loop, a self-improving build loop, autonomous card-based development, or wants to install a loop on a repo. Triggers include "loop engineering", "overnight loop", "autonomous loop", "boucle autonome", "run cards".
 ---
 
 # Loop Engineering
@@ -18,16 +18,29 @@ rewrite of that law.
 ## What you get
 
 ```
-scripts/init-loop.sh    scaffold the loop into any git repo (one command)
-scripts/loop.sh         the driver: pick, make, gate, commit or reset
-scripts/probe-lint.sh   card linter (catches lying probes before they lie)
-scripts/verify.sh       run the project gates by hand, same as the law does
-scripts/lib.sh          shared functions (probe parsing, base normalization)
-references/doctrine.md       the laws and why they exist
-references/card-format.md    how to write cards that cannot lie
+scripts/init-loop.sh    install the law into a git repo (one command)
+scripts/sync-law.sh     re-vendor a newer law without touching your contract
+law/                    THE LAW: 19 scripts, ~6800 lines, 84 hardening revisions
+  loop-overnight.sh       the driver: pick, make, gate, commit or reset
+  run-cycle.sh            one card, one agent session, one verdict
+  verify.sh / e2e.sh      the gates and the runtime gate
+  critic.sh               product critic (looks at the running app)
+  distill.sh              turns run experience into hints and skills
+  council.sh              arbitration when a card keeps failing
+  resurrect.sh            restarts a driver that died before its deadline
+  tests/harness-test.sh   700+ assertions guarding the law itself
+references/doctrine.md       the laws and the incident behind each one
+references/card-format.md    cards and probes that cannot lie
 references/stack-contract.md the one file that adapts the loop to any stack
 references/supervision.md    launch, monitor, close, failure classes
+references/agents.md         casting maker/checker/cartographer/critic
+references/getting-started.md from a spec document to a running loop
+references/beyond-code.md    loops on books, docs, datasets (non-code)
 ```
+
+The law is VENDORED into the project at install time: afterwards the project
+is autonomous, and `sync-law.sh` re-vendors a newer version on demand without
+ever touching `loop/stack.sh`, your cards or your state.
 
 ## Onboarding: interview the owner before writing anything
 
@@ -87,19 +100,22 @@ From the root of the target project:
 bash <skill-dir>/scripts/init-loop.sh
 ```
 
-This creates `loop/` with the driver, a `stack.sh` contract pre-filled by stack
-detection, and an example card. Then:
+This vendors the law into `loop/`, writes a `stack.sh` skeleton with what it
+could detect, and creates `docs/domain-rules.md` (the spec the cartographer
+reads). Then:
 
-1. Edit `loop/stack.sh`: pick the agent (`LOOP_AGENT=claude|codex|custom`), fix
-   the gate commands, write a one-paragraph `STACK_BRIEF`.
-2. Write 2 or 3 real cards in `loop/tasks/` (read `references/card-format.md`
-   first, bad probes are the number one cause of wasted nights).
-3. Lint them: `bash loop/probe-lint.sh loop/tasks/*.md`
-4. Dry-run the machinery: `LOOP_DRY_RUN=1 bash loop/loop.sh 5m`
-5. First real run, supervised, short: `bash loop/loop.sh 1h`
-6. Watch it: `tail -f loop/logs/run-*.log`. Never fire-and-forget.
-7. When the run closes green, verify independently, then merge `loop/work`
-   into your branch yourself. The loop never merges.
+1. Fill `loop/stack.sh`: casting, gate commands, `STACK_BRIEF`. If you are an
+   agent doing this for someone, run the onboarding interview above first.
+2. Write the spec in `docs/domain-rules.md` (rules and use cases, not tasks).
+   The cartographer turns it into cards when the queue runs dry.
+3. Seed 2 or 3 small cards yourself for the first run (read
+   `references/card-format.md`: bad probes are the top cause of wasted nights).
+4. Prove the base is sound: `bash loop/verify.sh` must be GREEN on a clean
+   tree. A loop on a red base makes every verdict meaningless.
+5. First run, short and supervised: `bash loop/loop-overnight.sh +1h`
+6. Watch it: `tail -f loop/logs/*.log`. Never fire-and-forget.
+7. When it closes: verify independently (gates + full runtime suite, quiet
+   machine), then YOU merge the loop branch. The loop never merges.
 
 ## The ten iron rules
 
@@ -138,28 +154,29 @@ These are the condensed doctrine. The full reasoning is in
 
 ## Choosing the maker agent
 
-Set in `loop/stack.sh`:
+Set the casting in `loop/stack.sh`. The law routes by model family
+automatically, so naming a model is usually enough:
 
 ```bash
-LOOP_AGENT=claude          # Claude Code CLI
-LOOP_MODEL=claude-opus-5   # optional model override
-
-LOOP_AGENT=codex           # Codex CLI (prompts are UTF-8 sanitized for it)
-LOOP_MODEL=gpt-5-codex     # optional
-
-LOOP_AGENT=custom          # anything else, e.g. Hermes or a local runner
-LOOP_MAKER_TEMPLATE='hermes -z "$(cat {PROMPT_FILE})"'
+LOOP_MAKER_KIND=claude     # claude | codex | hermes
+LOOP_MAKER=""              # model id, empty = the CLI default
+LOOP_LOT_CHAIR=codex       # the CHECKER: a DIFFERENT family than the maker
+LOOP_ESCALATION_MAKER=""   # different model for retries after a red
+LOOP_NO_LOCAL_LLM=1        # 1 = frontier casting, no local model required
 ```
 
-The maker always runs with the worktree as working directory. That worktree is
-the blast radius: the law resets anything that does not gate green. For Claude
-the preset uses non-interactive mode with permissions bypassed INSIDE the
-worktree only. Read the warning in `references/stack-contract.md` before
-changing that.
+All three CLIs are first-class. Hermes has the richest support (loop-scoped
+profile with a write-boundary hook, provider fallback, scoped memory, and
+local models via MLX or Ollama). Codex prompts are UTF-8 sanitized before
+exec, because its CLI rejects invalid UTF-8 arguments. Claude runs
+non-interactive with permissions bypassed INSIDE the worktree.
 
-An optional independent checker reviews each green commit. By default the law
-picks the opposite family automatically when the other CLI is installed
-(`LOOP_CHECKER=auto`).
+Full casting guide, per-CLI specifics and budget tradeoffs:
+`references/agents.md`.
+
+The containment that makes permission bypass acceptable is the disposable
+worktree plus the hard reset on red. Never point a loop at a checkout holding
+secrets, and never run it outside a worktree.
 
 ## Relation to goal modes (/goal, Codex goals, Hermes goal mode)
 
@@ -233,9 +250,9 @@ avoid.
 
 ### What this skill deliberately does not reinvent
 
-Measured on `scripts/loop.sh` (349 effective lines): the part a goal mode
-would replace is the pick-work-judge loop with its deadline and stop file,
-about 7 lines. Everything else has no equivalent in any goal mode, because
+Measured on the driver: the part a goal mode would replace is the
+pick-work-judge loop with its deadline and stop file, a few dozen lines out of
+thousands. Everything else has no equivalent in any goal mode, because
 goal modes were built to persist an intent, not to judge work:
 
 | Concern | Who owns it |

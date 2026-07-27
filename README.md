@@ -43,8 +43,8 @@ The skill is plain markdown plus bash: point your agent at `SKILL.md`. To use
 your CLI as the loop's MAKER, set in `loop/stack.sh`:
 
 ```bash
-LOOP_AGENT=custom
-LOOP_MAKER_TEMPLATE='hermes -z "$(cat {PROMPT_FILE})"'
+LOOP_MAKER_KIND=hermes
+LOOP_MAKER=<your model>
 ```
 
 Any command template works as long as it reads the prompt and edits files in
@@ -57,11 +57,9 @@ cd /path/to/project
 bash ~/dev/loop-engineering/scripts/init-loop.sh   # scaffolds loop/ (vendored, autonomous)
 $EDITOR loop/stack.sh                              # agent, gates, brief
 $EDITOR loop/tasks/                                # write real cards
-bash loop/probe-lint.sh loop/tasks/*.md            # lint before running
-LOOP_DRY_RUN=1 bash loop/loop.sh 5m                # wiring test
-bash loop/loop.sh 1h                               # first supervised run
-bash loop/verify.sh --e2e                          # independent verification
-git merge --no-ff loop/work                        # the OWNER merges
+bash loop/loop-overnight.sh +1h                    # first supervised run
+bash loop/verify.sh                                # independent verification
+git merge --no-ff loop/overnight                   # the OWNER merges
 ```
 
 The scaffold vendors the law into the project (`loop/*.sh`), so teammates and
@@ -76,11 +74,10 @@ references/doctrine.md         the laws and the incidents behind them
 references/card-format.md      cards and probes that cannot lie
 references/stack-contract.md   the one file adapting the loop to any stack
 references/supervision.md      launch, monitor, failure classes, close checklist
-scripts/init-loop.sh           scaffolder
-scripts/loop.sh                the law (driver)
-scripts/lib.sh                 shared functions
-scripts/probe-lint.sh          card linter
-scripts/verify.sh              gates by hand, same as the law
+scripts/init-loop.sh           installer (vendors the law into a repo)
+scripts/sync-law.sh            re-vendor a newer law, contract untouched
+law/                           THE LAW: 19 scripts, 84 hardening revisions
+law/tests/harness-test.sh      700+ assertions guarding the law itself
 ```
 
 ## Non-negotiables
@@ -110,8 +107,8 @@ Claude by conversation), while the loop runs headless with no session alive and
 spawns a fresh one PER CARD. One night as one standing goal means one session
 accumulating every diff and retry: context bloat, drift, superlinear cost.
 
-Measured: of 349 effective lines in `scripts/loop.sh`, a goal mode would
-replace about 7 (the pick-work-judge loop and its deadline). The rest, gates,
+Measured: a goal mode would replace only the pick-work-judge loop and its
+deadline, a few dozen lines of the driver. The rest, gates,
 probes, atomic commit-or-reset, repair-card guards, infra failure classes,
 cross-family review, orphan reaping, has no equivalent there.
 
