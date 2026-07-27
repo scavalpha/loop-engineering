@@ -183,6 +183,41 @@ meaningless.
 **What you must never do at onboarding**: launch a run. Setting up and running
 are two decisions, and the second belongs to the owner (see rule 10).
 
+## Do not write commands. State what must be true.
+
+The one instruction that replaces a configuration file:
+
+> **"Make sure it still builds and the tests pass."**
+
+You derive the rest. You read `package.json` scripts, `pom.xml`, the CI
+workflow, the README, and you find how THIS project is built and tested. That
+is strictly better than a `GATE_FRONT_CMD` frozen in a file, because a frozen
+command goes stale the day someone renames a script, and nobody notices until
+a night is wasted on a false red.
+
+The same applies everywhere:
+
+| Do not write | State instead |
+| --- | --- |
+| `GATE_BACK_CMD='./mvnw -q test'` | "the backend tests must pass" |
+| `PROBE: rg -q "searchDossiers" src/...` | "searching by client name must reach the server" |
+| `SMOKE_PATH=/api/health` | "the app must actually start and answer" |
+| `E2E_CMD='npx playwright test'` | "the screens must load without console errors" |
+
+What must be written down is what you CANNOT derive by looking:
+
+- **what the product is** and what it must do (the spec, `docs/domain-rules.md`),
+- **conventions and traps** a newcomer would violate ("money in cents, never
+  floats", "no Flyway here, the schema lives in db/*.sql"),
+- **what already cost us dearly** (the learned lessons, the regression checks),
+- **what the owner wants prioritised right now**.
+
+Everything else, you work out. That is why you were chosen for the role.
+
+The contract file (`loop/stack.sh`) still exists for DRIVER mode, because bash
+cannot read a README and reason about it. In agent mode you do not need it:
+one paragraph describing the project replaces it entirely.
+
 ## What actually matters (and what is scaffolding)
 
 This law grew around a WEAK maker: a small local model that had to be told
