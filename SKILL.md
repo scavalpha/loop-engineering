@@ -1,0 +1,134 @@
+---
+name: loop-engineering
+description: Build and operate an autonomous engineering loop on any local git project, with Claude Code, Codex, or any agent CLI as the maker. Use when the user wants an overnight coding loop, a self-improving build loop, autonomous card-based development, or wants to port a loop to a new repo. Triggers include "loop engineering", "overnight loop", "autonomous loop", "engineering loop", "boucle autonome", "run cards".
+---
+
+# Loop Engineering
+
+A loop is a deterministic bash LAW wrapping a probabilistic MAKER. The law picks a
+card (a small, provable unit of work), hands it to a coding agent, then judges the
+result with compilers, tests and probes. Green survives as a commit. Red is reset
+to zero. The agent's opinion of its own work is never the verdict: the gates are.
+
+This skill was distilled from months of production runs on real banking projects
+(80+ hardening revisions of the law). Every rule in it was paid for by a lost
+night, a lying card, or a false green. The scripts here are a clean, portable
+rewrite of that law.
+
+## What you get
+
+```
+scripts/init-loop.sh    scaffold the loop into any git repo (one command)
+scripts/loop.sh         the driver: pick, make, gate, commit or reset
+scripts/probe-lint.sh   card linter (catches lying probes before they lie)
+scripts/verify.sh       run the project gates by hand, same as the law does
+scripts/lib.sh          shared functions (probe parsing, base normalization)
+references/doctrine.md       the laws and why they exist
+references/card-format.md    how to write cards that cannot lie
+references/stack-contract.md the one file that adapts the loop to any stack
+references/supervision.md    launch, monitor, close, failure classes
+```
+
+## Quickstart
+
+From the root of the target project:
+
+```bash
+bash <skill-dir>/scripts/init-loop.sh
+```
+
+This creates `loop/` with the driver, a `stack.sh` contract pre-filled by stack
+detection, and an example card. Then:
+
+1. Edit `loop/stack.sh`: pick the agent (`LOOP_AGENT=claude|codex|custom`), fix
+   the gate commands, write a one-paragraph `STACK_BRIEF`.
+2. Write 2 or 3 real cards in `loop/tasks/` (read `references/card-format.md`
+   first, bad probes are the number one cause of wasted nights).
+3. Lint them: `bash loop/probe-lint.sh loop/tasks/*.md`
+4. Dry-run the machinery: `LOOP_DRY_RUN=1 bash loop/loop.sh 5m`
+5. First real run, supervised, short: `bash loop/loop.sh 1h`
+6. Watch it: `tail -f loop/logs/run-*.log`. Never fire-and-forget.
+7. When the run closes green, verify independently, then merge `loop/work`
+   into your branch yourself. The loop never merges.
+
+## The ten iron rules
+
+These are the condensed doctrine. The full reasoning is in
+`references/doctrine.md`, read it before changing the law.
+
+1. **The gate decides, never the maker.** A card is green when the project
+   builds, the tests pass and every probe exits 0. Prose claims are noise.
+2. **Atomic or nothing.** Work happens in a disposable worktree. Green becomes
+   one commit. Red becomes `git reset --hard`. There is no partially-done card.
+3. **Probes are AND, discriminant, executable.** One assertion per PROBE line.
+   No `|` alternation inside a pattern, no `||` between commands, no prose, no
+   always-true. A probe that already passes before the work exists is a lie.
+4. **A repair card can never auto-complete.** If its probes already pass, the
+   probes are wrong, not the defect gone. Repair cards leave the queue only
+   when their fix is a commit in history.
+5. **Judge and maker come from different families.** Claude makes, Codex
+   reviews, or the reverse. A model reviewing its own family finds nothing.
+6. **Regression outranks new features.** Reviewer findings on shipped work
+   become P0 fix cards. Fix generations are capped (default 2) with counters
+   persisted outside the worktree, and the fix of a fix keeps the SAME base
+   name, otherwise the cap counts nothing.
+7. **Per-card gates do not see assembly breakage.** Run the full end-to-end
+   suite regularly and always before a merge, on a quiet machine. Ten green
+   cards can still assemble into a broken product.
+8. **Infra failure is never the card's fault.** Provider overload (529/503),
+   lost network, rate limits: pause and retry the same card, never blame it,
+   never route it to escalation. And a proactive quota gate must never hold a
+   night hostage on a frozen metric: if the reading does not move, resume.
+9. **Reap everything, every cycle.** Kill worktree orphans (JVMs, dev servers,
+   headless browsers) at the top of each cycle and at close. A saturated
+   machine produces false reds that look exactly like real regressions.
+10. **The owner launches, the owner merges.** Never start a run without an
+    explicit order. Supervise every run. An anomaly caught by a safety net is
+    still an anomaly: diagnose it now, not tomorrow.
+
+## Choosing the maker agent
+
+Set in `loop/stack.sh`:
+
+```bash
+LOOP_AGENT=claude          # Claude Code CLI
+LOOP_MODEL=claude-opus-5   # optional model override
+
+LOOP_AGENT=codex           # Codex CLI (prompts are UTF-8 sanitized for it)
+LOOP_MODEL=gpt-5-codex     # optional
+
+LOOP_AGENT=custom          # anything else, e.g. Hermes or a local runner
+LOOP_MAKER_TEMPLATE='hermes -z "$(cat {PROMPT_FILE})"'
+```
+
+The maker always runs with the worktree as working directory. That worktree is
+the blast radius: the law resets anything that does not gate green. For Claude
+the preset uses non-interactive mode with permissions bypassed INSIDE the
+worktree only. Read the warning in `references/stack-contract.md` before
+changing that.
+
+An optional independent checker reviews each green commit. By default the law
+picks the opposite family automatically when the other CLI is installed
+(`LOOP_CHECKER=auto`).
+
+## Operating an existing loop
+
+When the user asks you to run, watch or debug a loop that is already installed:
+
+1. Read `loop/stack.sh` first, then `loop/state/report-*.md` and the last
+   `loop/logs/run-*.log`. The journal tells you what the law decided and why.
+2. Diagnose infra-looking failures against `references/supervision.md`
+   (failure classes table). Check machine memory before believing a red e2e.
+3. Improve the LAW, not the instance: if a failure class repeats, the fix
+   belongs in `loop.sh` or in the card, with a test, not in a one-off manual
+   touch-up of the worktree.
+4. Keep the anti-leak rule: the law and the scripts never contain project
+   names, stack commands or ports. All of that lives in `stack.sh`.
+
+## Writing cards for the user
+
+When asked to seed cards, follow `references/card-format.md` strictly. The
+short version: describe the observable behavior wanted (DONE WHEN), give probes
+that FAIL today and will pass only when the feature exists, tag VALUE (P0 to
+P3), keep one card one concern, and never write a probe you have not executed
+yourself first.
