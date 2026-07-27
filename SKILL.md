@@ -36,11 +36,44 @@ references/supervision.md    launch, monitor, close, failure classes
 references/agents.md         casting maker/checker/cartographer/critic
 references/getting-started.md from a spec document to a running loop
 references/beyond-code.md    loops on books, docs, datasets (non-code)
+references/generic-vs-project.md  what travels vs what stays and is learned
 ```
 
 The law is VENDORED into the project at install time: afterwards the project
 is autonomous, and `sync-law.sh` re-vendors a newer version on demand without
 ever touching `loop/stack.sh`, your cards or your state.
+
+## How to read this skill (you are an agent, not a copier)
+
+Two things are shipped here and they have very different weights.
+
+**The doctrine is the contract.** `references/doctrine.md` and the ten rules
+below are not style preferences: each one was paid for by a lost night, a
+lying card or a false green. You cannot re-derive them from first principles,
+because they are counter-intuitive by nature (a green probe on a repair card
+means the PROBE is wrong; a proactive quota gate must resume on a frozen
+metric; a same-family reviewer is worse than none). Follow them. If you think
+one is wrong, say so explicitly to the owner rather than silently dropping it.
+
+**The law in `law/` is a reference implementation, not scripture.** It is a
+production driver hardened over 80+ revisions, so it will save you days, and
+installing it as-is is usually the right call. But you are a reasoning agent:
+if the project needs something different, adapt it. Concretely you are
+expected to:
+
+- write `loop/stack.sh` yourself after interviewing the owner, never guess it;
+- adapt the gates to what this project can actually verify (a novel has no
+  compiler, a mobile app has no Playwright);
+- diagnose and fix what the law's harness reports on THIS project instead of
+  treating a failing assertion as fate: some of them guard the law, others
+  guard artifacts a given project may not have;
+- write project-specific assertions when you catch the same mistake twice
+  (see `references/generic-vs-project.md`);
+- improve the law when you find a real defect in it, with a test and the
+  incident recorded in the comment, exactly as its own history does.
+
+What you must NOT do: dilute a guard because it is inconvenient, mark work
+done on a maker's word, or launch a run without the owner's explicit order.
 
 ## Onboarding: interview the owner before writing anything
 

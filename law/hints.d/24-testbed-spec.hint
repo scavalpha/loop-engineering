@@ -1,0 +1,31 @@
+MATCH: HttpTestingController|TestBed|expectOne|provideHttpClientTesting|NullInjectorError.*Http|Expected one matching request
+---
+Le spec Angular avec client HTTP de test rate presque toujours sur la CONFIG, pas sur la
+logique. Gabarit qui passe (Angular moderne, standalone):
+
+  import { TestBed } from '@angular/core/testing';
+  import { provideHttpClient } from '@angular/common/http';
+  import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+
+  describe('MonService', () => {
+    let httpMock: HttpTestingController;
+    beforeEach(() => {
+      TestBed.configureTestingModule({
+        providers: [provideHttpClient(), provideHttpClientTesting()],
+      });
+      httpMock = TestBed.inject(HttpTestingController);
+    });
+    afterEach(() => httpMock.verify());
+    it('charge les donnees', () => {
+      const svc = TestBed.inject(MonService);
+      let out: unknown;
+      svc.charger().subscribe(v => (out = v));
+      httpMock.expectOne('/api/mon-endpoint').flush([{ id: 1 }]);
+      expect(out).toBeTruthy();
+    });
+  });
+
+Regles: provideHttpClient AVANT provideHttpClientTesting; expectOne doit matcher l'URL
+EXACTE appelee par le service (params compris: sinon utiliser un predicat req =>
+req.url.startsWith(...)); flush APRES subscribe; un composant standalone se teste via
+TestBed.configureTestingModule({ imports: [MonComposant], providers: [...] }).

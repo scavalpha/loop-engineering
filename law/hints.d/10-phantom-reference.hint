@@ -1,0 +1,6 @@
+MATCH: find stylesheet|Cannot find module|Could not resolve|NG2008|TS2307
+---
+PHANTOM REFERENCES: some errors above point to a file that does NOT exist (e.g. a styleUrl
+to a missing .css, an import to a missing module). Prefer DELETING the offending reference
+(remove the styleUrl, fix or remove the bad import) over inventing a file just to satisfy
+it. Only create a file if the feature genuinely needs it.
