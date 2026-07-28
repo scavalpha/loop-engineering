@@ -79,6 +79,12 @@ never see assembly breakage. Then report what is mergeable and let the owner
 merge. Kill everything you started, including sub-agents that outlived their
 orchestrator: they keep writing with nobody left to judge them.
 
+The same rule holds for the disk. Closing means leaving it the way the owner
+agreed: the footprint back in its one place, temporary files gone, caches and
+directories the next run does not need removed. A run that ends green but
+leaves debris is not finished, and if an earlier run scattered something, the
+run that notices is the run that cleans it.
+
 ## Surviving a machine reboot
 
 An agent session dies with its machine; nothing you do inside it changes that.
