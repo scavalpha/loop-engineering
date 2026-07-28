@@ -75,7 +75,11 @@ sits: you know what your book must never contradict.
 
 The checker (a different model family) then reviews each accepted chapter for
 what no script can see: does the promise of the card actually land, does the
-voice hold, is a plot thread dropped. Its findings become the next card, at top priority, and nothing gets reverted.
+voice hold, is a plot thread dropped. Findings about constraints and
+consistency become the next card, at top priority, and nothing gets reverted.
+Findings about taste, whether the scene lands, whether the voice sings, are
+observations handed to the owner, never a gate: a model grading beauty is
+still a model grading itself.
 
 ## What the loop can and cannot guarantee here
 

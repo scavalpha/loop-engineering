@@ -9,6 +9,8 @@ What matters is that each element below is covered somehow.
 Work somewhere disposable, on its own branch. A git worktree is the usual
 answer: the main checkout stays untouched, and a failed unit costs nothing but
 a reset. This is what makes autonomous work safe enough to leave running.
+State that must survive a reset, banked diffs, reports, notes, lives outside
+the disposable tree, somewhere git tracks.
 
 Whatever you choose, make failure cheap. If undoing a bad unit of work is
 expensive, you will be tempted to keep it.
@@ -31,6 +33,13 @@ throwing it away means paying for it twice.
 
 Do not accept a sub-agent's report as the verdict. It is a claim about its own
 work. Check it.
+
+When a unit fails, classify before reacting, in this order: infrastructure
+(overload, quota, network, a saturated machine) is never the card's fault,
+pause and retry the same card unchanged; a real red banks the diff, resets,
+and the next attempt goes to a different model, same model means same blind
+spot; the same cause seen twice stops the run's work entirely, because the
+fault is upstream, in a stale spec or a check that lies.
 
 ## Being checked
 
@@ -67,5 +76,8 @@ orchestrator: they keep writing with nobody left to judge them.
 
 An agent session dies with its machine; nothing you do inside it changes that.
 If a run must survive that, something outside must restart it: a system
-scheduler waking you with your goal again. The state is safe regardless,
-because the cards, the commits and the notes are files in git.
+scheduler waking you with your goal again. A restart inside the window the
+owner ordered is the same run, not a new decision; past the deadline, nothing
+relaunches itself, and a scheduler entry that outlives its own deadline is an
+incident to remove. The state is safe regardless, because the cards, the
+commits and the notes are files in git.

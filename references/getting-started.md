@@ -35,8 +35,11 @@ this project, not shipping the product.
 ## Before running anything
 
 Prove the base is sound: build it, test it, on an untouched tree. If it is
-already red, stop and say so. A loop on a broken base produces confident
-garbage, and every verdict afterwards is meaningless.
+already red, stop and say so, never build on it silently: every verdict
+afterwards would be meaningless. A red base is not a dead end, it is a
+different first goal. With the owner's explicit consent, record the baseline
+failures, make each one a card, and forbid any new regression against that
+baseline until the base is green.
 
 ## What you ask the owner
 

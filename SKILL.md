@@ -35,10 +35,11 @@ what survives you.
 Do not open the first card and start working. Look at where the project stands
 and what is still queued, together, and decide what deserves the next hours.
 
-That review answers four questions:
+That review answers five questions:
 
-- **What does the spec still not cover?** Compare it to what the code actually
-  does, not to what earlier cards claimed.
+- **What does the spec still not cover, and what does the code still owe the
+  spec?** The comparison runs both ways, against what the code actually does,
+  not what earlier cards claimed.
 - **Which queued cards are already satisfied?** Work gets done under other
   names, by side effects, by earlier fixes. Retire them now rather than
   spending a cycle each discovering it.
@@ -50,8 +51,10 @@ That review answers four questions:
 - **Did the last run's account survive you looking?** Its commits claim
   verifications, filings, cleanups. Pick a claim or two and look for the
   artifact. One that is not there is your first card, and a reason to trust
-  the rest of that run less. This is how a loop catches its own past errors
-  instead of waiting for someone else to.
+  the rest of that run less. This sampling is an audit on top of the
+  guarantee, not the guarantee itself: each cycle only closed once every claim
+  had its artifact, and the judge re-audits at run close. Three layers, so
+  that catching a past error never depends on one agent remembering to look.
 
 **How often.** At the start of every run, before touching a card. It costs a
 few minutes and it decides whether the next hours are worth anything. If you
@@ -149,9 +152,9 @@ the cycle's own condition is for. A gap of **judgment** is what a family does
 not find suspicious in the first place, an idiom it finds natural, an
 assumption it shares with itself. Looking harder cannot close that one, because
 you do not know where to look. That, and only that, is what another family is
-for, and it is why the judge must differ from whoever **verified**, not merely
-from whoever wrote the code. When the driver and the maker are the same family,
-the driver's judgment is the one going unchecked.
+for. The one rule, stated once for the whole skill: **the judge's family
+differs from the maker's AND from the verifier's.** When the driver and the
+maker are the same family, the driver's judgment is the one going unchecked.
 
 **Believing a report about anything outside the diff.** Verifying the work
 does not verify the account of it. A maker that says it filed a follow-up,
@@ -169,13 +172,19 @@ reverting.
 independently, report what is mergeable. The owner merges. Before you report,
 close the run with the judge: hand it the whole accumulated diff, not one card
 at a time, because what survives a per-card review is precisely the defect that
-only appears once the cards sit together. Its findings become cards at the top
-of the queue, and nothing is reverted, the code passed its gates. Say in the
+only appears once the cards sit together. Hand it the cycle commits too: part
+of its mandate is auditing that what each cycle claimed to verify is actually
+there. Its findings become cards at the top of the queue, and nothing is
+reverted, the code passed its gates. Say in the
 report which family judged, or that none did.
 
 **Running without being asked.** Setting up and running are two decisions. The
-second belongs to the owner, every time, and a run left unsupervised for hours
-is how a small anomaly becomes a wasted night.
+second belongs to the owner, every time. The order covers a window: a restart
+inside that window is the same run, and past its deadline nothing relaunches
+itself, a scheduler entry that survives its own deadline is an incident. And
+unsupervised does not mean unwatched: the watcher is whoever drives, holding
+hard limits, a deadline, a retry cap, an orphan sweep, and reporting. What the
+owner owes the run is the order and the merge, not a check every ten minutes.
 
 ## The cycle has a condition too
 
@@ -210,9 +219,10 @@ card. It is done when:
 - **No card failed for a reason already seen.** If one did, the fault is
   upstream, in a stale spec or a check that lies, and the card is innocent.
 - **What you learned is written where the next run will read it**, as a card if
-  it concerns the product, as a line here if it concerns the craft. Apply the
-  test in `what-travels.md` first: a lesson only this project wants belongs in
-  the project's own memory, not in a skill every project shares.
+  it concerns the product, in the project's own notes if it concerns the
+  craft. Promoting a craft lesson into this shared skill is a separate,
+  deliberate act the owner sees, after the test in `what-travels.md`: a lesson
+  only this project wants never leaves the project.
 
 A condition that does not hold is not shame, and it is not ignorable either:
 it is the next unit of work, closed before another card is opened.

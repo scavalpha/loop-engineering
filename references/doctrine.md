@@ -10,7 +10,12 @@ bash script wrapping a weak local model, so they describe mechanisms in terms
 of that machinery: a driver, gates, probes, cards moving between directories.
 You do not need any of that. Build the harness you judge necessary. What is
 worth carrying is underneath the mechanism: WHY each guard exists, and what
-happened when it was missing. Read it that way.
+happened when it was missing. Read it that way. If you build without probes,
+the invariants to keep from sections 2 to 5 are only these: a completion check
+proves nothing unless it fails before the work exists, a repair card never
+closes without the defect being re-observed, and a commit message alone proves
+nothing. The incidents and numbers here are testimony from the origin project;
+their logs are not in this repository.
 
 ## 1. Isolation and atomicity
 
@@ -108,8 +113,8 @@ is reverted (fix-forward: the code is committed and working, refine it).
 
 ## 6. Judge independence
 
-The maker and the reviewer must come from different model families (Claude
-makes, Codex judges, or the reverse). A judge from the maker's family
+The judge's family must differ from the maker's AND from whoever verified the
+work (one rule, same everywhere in this skill). A judge from the maker's family
 rubber-stamps its own idiom and finds the same blind spots. If only one CLI is
 installed, run without a checker rather than with a same-family one, and say
 so in the report.
@@ -181,7 +186,9 @@ from the provider justifies a long wait, an estimate never does.
 - **No run without an explicit owner order.** The words come from the owner
   in the current conversation, never inferred, never carried over.
 - **Supervise, never fire-and-forget.** Check roughly every 10 minutes early
-  in a run. Intercept build-and-revert loops before they eat the night.
+  in a run. Intercept build-and-revert loops before they eat the night. The
+  checker is whoever drives, human or agent: an agent driver watches its own
+  run, the owner reads the report.
 - **A net-caught anomaly is still an anomaly.** The resurrector restarting a
   dead driver, the reaper killing an orphan: those are symptoms captured, not
   problems solved. Diagnose immediately.
