@@ -40,6 +40,16 @@ A project also accumulates taste: naming, structure, idioms, what its screens
 should feel like. Feed it to whoever does the work, and drop the rules that
 never help. Another project's taste is noise in yours, so this never travels.
 
+## Reviewing what you kept
+
+Written memory rots as surely as a queue does: a check written for a real
+defect goes false when the product improves, a convention gets superseded, a
+lesson stops applying. Revisit it on the same rhythm as the queue.
+
+The question to ask of each item: **would this still catch the thing it was
+written for, or does it now only catch change?** The second kind is worse than
+useless, it teaches everyone to ignore the alarm.
+
 ## When in doubt
 
 Ask whether a stranger's repository would want it. If not, it stays home.

@@ -48,8 +48,28 @@ That review answers four questions:
 - **What actually matters next?** A queue is not a plan. Order it by what the
   product needs, and say what you are deliberately not doing.
 
-Do this at the start of a run, and again whenever the queue stops matching the
-project, which happens faster than anyone expects.
+**How often.** At the start of every run, before touching a card. It costs a
+few minutes and it decides whether the next hours are worth anything. If you
+run several times a day and that feels heavy, make it every third run at
+worst, never less.
+
+Do it immediately, whatever the schedule says, when any of these appear:
+
+- **two cycles in a row that changed nothing.** The queue is describing work
+  that is already done. Stop and look, do not pick a third card.
+- **a card failing for a reason you have seen before.** Something upstream is
+  wrong: a stale spec, a rule that changed, a check that lies.
+- **the queue growing while nothing ships.** Reviewers and product passes
+  generate cards faster than they get consumed, so a queue only grows until
+  someone prunes it.
+- **coming back after a break**, or picking up a project someone else drove.
+  You have no idea what happened in between, and the cards will not tell you.
+
+The drift is continuous, not occasional: every run adds cards from reviews and
+product passes, while the code moves under them. On the project this comes
+from, nobody had ever pruned, and by the time anyone looked, 109 of 128 cards
+described work already done and 4 would have actively broken the product if
+executed.
 
 **Why it matters more than it sounds.** On the project this comes from, the
 queue held 128 cards and the review only ever ran when it emptied, so it never
