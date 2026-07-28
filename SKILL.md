@@ -102,6 +102,19 @@ before merging.
 produces failures indistinguishable from real regressions. Check the machine
 before believing a red that contradicts a recent green.
 
+**Verifying with your own command instead of the project's.** A generic test
+runner invoked directly can skip the setup the project's own command performs,
+and then everything fails for a reason that has nothing to do with the work.
+Run what the project runs. On the run this comes from, a bare runner reported
+thirty-three files failing on untouched code; the project's own command
+reported all of them passing, and it was right.
+
+**Reading one queue while working in another tree.** If the work happens on a
+branch or a worktree, the units of work you pick must come from that same
+place. On the run this comes from, the queue had been pruned from 128 cards to
+18 on one branch while the working tree still carried all 139: every decision
+about what mattered next was made from a list that was not the one on disk.
+
 **Blaming the card for infrastructure.** Provider overload, dropped network,
 exhausted quota: pause and retry the same card. Never escalate it, never mark
 it failed, and never wait on a metric that has stopped moving.
