@@ -25,6 +25,9 @@ not
 
 > *until the feature works well*
 
+Claim the condition holds only after walking every rule and use case against
+the implementation: unexamined means unknown, and unknown is not done.
+
 The unit of work is a card: a file stating what must be true when it is done,
 in the product's language. The spec (`docs/domain-rules.md`) says what the
 product is; cards say what to do next. Both are files in git, because that is
@@ -53,8 +56,9 @@ That review answers five questions:
   artifact. One that is not there is your first card, and a reason to trust
   the rest of that run less. This sampling is an audit on top of the
   guarantee, not the guarantee itself: each cycle only closed once every claim
-  had its artifact, and the judge re-audits at run close. Three layers, so
-  that catching a past error never depends on one agent remembering to look.
+  had its artifact, and the judge re-audits at run close. Three layers, and
+  if any layer skipped its evidence, the affected work is reported as
+  unverified, never as green.
 
 **How often.** At the start of every run, before touching a card. It costs a
 few minutes and it decides whether the next hours are worth anything. If you
@@ -174,8 +178,10 @@ close the run with the judge: hand it the whole accumulated diff, not one card
 at a time, because what survives a per-card review is precisely the defect that
 only appears once the cards sit together. Hand it the cycle commits too: part
 of its mandate is auditing that what each cycle claimed to verify is actually
-there. Its findings become cards at the top of the queue, and nothing is
-reverted, the code passed its gates. Say in the
+there. Its verified violations, of the spec, of a card, of a behaviour that
+must survive, become cards at the top of the queue, and nothing is reverted,
+the code passed its gates. Its design preferences and unproved suspicions go
+to the owner as observations, never as gates. Say in the
 report which family judged, or that none did.
 
 **Running without being asked.** Setting up and running are two decisions. The
@@ -205,7 +211,11 @@ attention. A long run does not degrade reasoning, it degrades looking, and a
 rule you know but do not apply protects nothing.
 
 So give the cycle a DONE WHEN, and hold yourself to it exactly as you hold a
-card. It is done when:
+card. Declare the stakes before touching the card: which card, which tree and
+starting point, what evidence will settle DONE, what limits bound the run.
+Anything unknown at that moment is a reason not to start, and the close is
+checked against what you declared, not against what you remember intending.
+The cycle is done when:
 
 - **The queue you chose from and the tree you worked in are the same place.**
   Two lists means every priority decision was taken on the wrong one.

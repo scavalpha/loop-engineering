@@ -37,9 +37,15 @@ this project, not shipping the product.
 Prove the base is sound: build it, test it, on an untouched tree. If it is
 already red, stop and say so, never build on it silently: every verdict
 afterwards would be meaningless. A red base is not a dead end, it is a
-different first goal. With the owner's explicit consent, record the baseline
-failures, make each one a card, and forbid any new regression against that
-baseline until the base is green.
+different first goal. First reproduce and classify each baseline failure.
+With the owner's explicit consent, card the reproducible product defects;
+record infrastructure and flaky failures separately, they are not product
+debt; and never admit a new regression against the observed baseline.
+
+Name, before launch, every observation the goal requires that you cannot
+perform: a screen you cannot see, a device you cannot drive. A missing
+capability narrows the agreed goal or blocks the run, it never silently
+weakens what DONE means.
 
 ## What you ask the owner
 
