@@ -152,45 +152,56 @@ independently, report what is mergeable. The owner merges.
 second belongs to the owner, every time, and a run left unsupervised for hours
 is how a small anomaly becomes a wasted night.
 
-## Closing a cycle: what you believe against what is there
+## The cycle has a condition too
 
-Every failure in the list above was caught the same way, and never by thinking
-harder. Something was checked against reality: a directory listed, an error
-read, a file counted, a fix reverted to see the test go red. The gap is
-never *reasoning*, it is always *belief that was never confronted*.
+Every card states what must be true when it is done. The cycle that delivers it
+states nothing, and that asymmetry is where this leaks.
 
-So close every cycle by confronting yours. These are questions to answer with
-evidence, not a script to run, and a "no" is not a failure of the cycle, it is
-the next card:
+Look at who is checked. The maker's work is built, tested, and confronted line
+by line against the card. **The work of whoever drives is checked by nobody**,
+and it is real work: choosing the card, reading the queue, judging a report,
+filing what was found, deciding it is green. Every failure that was not a
+maker's was the driver's.
 
-- **Does the queue I chose from match the tree I worked in?** Same branch, same
-  files. If two lists exist, every priority decision was taken on the wrong one.
-- **Did everything I said I did actually happen?** Not the code, the rest: a
-  follow-up filed, a process killed, scaffolding undone. Look at the artifact.
-- **Did this cycle change the product, or only the story about it?** A cycle
-  with no source diff is a cycle that discovered the work was already done. Say
-  so and prune, do not pick a second card and hope.
-- **Are the gates green on the whole, not on my files?** Ten green cards can
-  compose into a broken product.
-- **Did anything I started outlive me?**
-- **Did this card fail for a reason I have already seen?** Then the problem is
-  upstream: a stale spec, a rule that changed, a check that lies. Fix that, not
-  the card.
-- **What did I learn that would have saved this cycle?** Write it down now, as
-  a card if it is about the product, as a line here if it is about the craft. A
-  lesson that survives only in a session is not a lesson.
+The cause is not capability. Whoever drives can reason exactly as well as the
+maker it verifies: same model, often better. On the run this comes from, the
+driver caught a maker's false claim about its own filing at one cycle and
+missed the identical claim four cycles earlier. Nothing had changed but the
+attention. A long run does not degrade reasoning, it degrades looking, and a
+rule you know but do not apply protects nothing.
 
-That last question is the whole machine. A loop gets better because each cycle
-ends with less that can go wrong, not because a bigger model runs it. And the
-learning has to compound as **fewer things to check, not more**: the loop this
-comes from carried six thousand lines of guardrails written for a weak executor,
-and deleting them made it better. When you add a rule, look for the two it makes
-unnecessary.
+So give the cycle a DONE WHEN, and hold yourself to it exactly as you hold a
+card. It is done when:
 
-**What no amount of this will do.** A loop verifies what it can observe: that
-it builds, that the tests pass, that a card's condition holds, that it did what
-it claimed. It cannot tell you the design is wise or the product is right. That
-part stays yours, and a loop that pretends otherwise is lying to you politely.
+- **The queue you chose from and the tree you worked in are the same place.**
+  Two lists means every priority decision was taken on the wrong one.
+- **Everything claimed has an artifact you have seen.** Not the code, the rest:
+  a follow-up filed, a process killed, scaffolding undone. Yours included.
+- **The cycle changed the product, or you have said out loud that it did not.**
+  No source diff means the work was already done. Prune, do not pick another
+  card and hope.
+- **The gates are green on the whole, not on the files you touched.**
+- **Nothing you started outlived you.**
+- **No card failed for a reason already seen.** If one did, the fault is
+  upstream, in a stale spec or a check that lies, and the card is innocent.
+- **What you learned is written where the next run will read it**, as a card if
+  it concerns the product, as a line here if it concerns the craft.
+
+Write into the commit what you verified and how, in terms someone can replay:
+the suite you ran, the count it returned, what you broke to watch the test go
+red. That sentence is what makes the driver's work checkable at all, and it is
+the only reason a later run, or a judge from another family, can catch you.
+
+The last condition is the whole machine. A loop improves because each cycle
+ends with less that can go wrong, not because a bigger model runs it. And it
+has to compound as **fewer things to check, not more**: the loop this comes from
+carried six thousand lines of guardrails written for a weak executor, and
+deleting them made it better. When you add a rule, find the two it retires.
+
+**What none of this will do.** A loop verifies what it can observe: that it
+builds, that the tests pass, that a card's condition holds, that it did what it
+claimed. It cannot tell you the design is wise or the product is right. That
+part stays with the owner, and a loop that pretends otherwise is lying politely.
 
 ## Beyond code
 
