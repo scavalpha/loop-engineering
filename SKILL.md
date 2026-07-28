@@ -133,6 +133,14 @@ built. Before trusting one, confirm it fails today.
 **Self-review.** A reviewer sharing the maker's idiom finds nothing. Get
 checked by a different model family, or state plainly that you were not.
 
+**Believing a report about anything outside the diff.** Verifying the work
+does not verify the account of it. A maker that says it filed a follow-up,
+killed what it started, or undid its own scaffolding is making a claim nothing
+in your gates touches, and it will read as done. Look at the artifact, or do
+not count it. Better: do not ask a maker to keep the memory at all. It reports
+what it found, you file it. A side task nobody checks is a side task nobody
+does.
+
 **Regressions losing to features.** A defect found in shipped work outranks
 anything new. Fix forward: the code passed its gates, refine it rather than
 reverting.
