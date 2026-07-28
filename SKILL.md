@@ -152,6 +152,46 @@ independently, report what is mergeable. The owner merges.
 second belongs to the owner, every time, and a run left unsupervised for hours
 is how a small anomaly becomes a wasted night.
 
+## Closing a cycle: what you believe against what is there
+
+Every failure in the list above was caught the same way, and never by thinking
+harder. Something was checked against reality: a directory listed, an error
+read, a file counted, a fix reverted to see the test go red. The gap is
+never *reasoning*, it is always *belief that was never confronted*.
+
+So close every cycle by confronting yours. These are questions to answer with
+evidence, not a script to run, and a "no" is not a failure of the cycle, it is
+the next card:
+
+- **Does the queue I chose from match the tree I worked in?** Same branch, same
+  files. If two lists exist, every priority decision was taken on the wrong one.
+- **Did everything I said I did actually happen?** Not the code, the rest: a
+  follow-up filed, a process killed, scaffolding undone. Look at the artifact.
+- **Did this cycle change the product, or only the story about it?** A cycle
+  with no source diff is a cycle that discovered the work was already done. Say
+  so and prune, do not pick a second card and hope.
+- **Are the gates green on the whole, not on my files?** Ten green cards can
+  compose into a broken product.
+- **Did anything I started outlive me?**
+- **Did this card fail for a reason I have already seen?** Then the problem is
+  upstream: a stale spec, a rule that changed, a check that lies. Fix that, not
+  the card.
+- **What did I learn that would have saved this cycle?** Write it down now, as
+  a card if it is about the product, as a line here if it is about the craft. A
+  lesson that survives only in a session is not a lesson.
+
+That last question is the whole machine. A loop gets better because each cycle
+ends with less that can go wrong, not because a bigger model runs it. And the
+learning has to compound as **fewer things to check, not more**: the loop this
+comes from carried six thousand lines of guardrails written for a weak executor,
+and deleting them made it better. When you add a rule, look for the two it makes
+unnecessary.
+
+**What no amount of this will do.** A loop verifies what it can observe: that
+it builds, that the tests pass, that a card's condition holds, that it did what
+it claimed. It cannot tell you the design is wise or the product is right. That
+part stays yours, and a loop that pretends otherwise is lying to you politely.
+
 ## Beyond code
 
 Nothing here assumes code. Replace building and testing with whatever settles
