@@ -47,6 +47,11 @@ That review answers four questions:
   Rewrite it around the behaviour, or drop it.
 - **What actually matters next?** A queue is not a plan. Order it by what the
   product needs, and say what you are deliberately not doing.
+- **Did the last run's account survive you looking?** Its commits claim
+  verifications, filings, cleanups. Pick a claim or two and look for the
+  artifact. One that is not there is your first card, and a reason to trust
+  the rest of that run less. This is how a loop catches its own past errors
+  instead of waiting for someone else to.
 
 **How often.** At the start of every run, before touching a card. It costs a
 few minutes and it decides whether the next hours are worth anything. If you
@@ -205,7 +210,12 @@ card. It is done when:
 - **No card failed for a reason already seen.** If one did, the fault is
   upstream, in a stale spec or a check that lies, and the card is innocent.
 - **What you learned is written where the next run will read it**, as a card if
-  it concerns the product, as a line here if it concerns the craft.
+  it concerns the product, as a line here if it concerns the craft. Apply the
+  test in `what-travels.md` first: a lesson only this project wants belongs in
+  the project's own memory, not in a skill every project shares.
+
+A condition that does not hold is not shame, and it is not ignorable either:
+it is the next unit of work, closed before another card is opened.
 
 Write into the commit what you verified and how, in terms someone can replay:
 the suite you ran, the count it returned, what you broke to watch the test go

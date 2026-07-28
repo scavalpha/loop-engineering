@@ -34,8 +34,10 @@ work. Check it.
 
 ## Being checked
 
-Have your greens reviewed by a different model family, on the diff. Its
-findings become the next unit of work, at top priority, and nothing gets
+At close, have the run's accumulated diff reviewed by a different model
+family — the whole diff, not card by card: the defect that survives a per-card
+review is exactly the one that only appears once the cards sit together. Its
+findings become the next units of work, at top priority, and nothing gets
 reverted: the code already passed its checks, so refine it forward.
 
 If only one family is available, say so in the report rather than implying a
