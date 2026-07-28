@@ -131,7 +131,22 @@ the work exists proves nothing, and it will mark a card done with nothing
 built. Before trusting one, confirm it fails today.
 
 **Self-review.** A reviewer sharing the maker's idiom finds nothing. Get
-checked by a different model family, or state plainly that you were not.
+checked by a different model family, or state plainly that you were not. The
+comparison is relational, never a named vendor: whichever family drove, the
+judge is one of the others among those installed, and if only one exists, run
+without and say so in the report.
+
+Be precise about what this buys, because it is easy to ask it for the wrong
+thing. Two different gaps hide behind "the reviewer missed it". A gap of
+**observation** is a belief never confronted with its artifact, and any
+competent agent closes it, same family or not, provided it looks: that is what
+the cycle's own condition is for. A gap of **judgment** is what a family does
+not find suspicious in the first place, an idiom it finds natural, an
+assumption it shares with itself. Looking harder cannot close that one, because
+you do not know where to look. That, and only that, is what another family is
+for, and it is why the judge must differ from whoever **verified**, not merely
+from whoever wrote the code. When the driver and the maker are the same family,
+the driver's judgment is the one going unchecked.
 
 **Believing a report about anything outside the diff.** Verifying the work
 does not verify the account of it. A maker that says it filed a follow-up,
@@ -146,7 +161,12 @@ anything new. Fix forward: the code passed its gates, refine it rather than
 reverting.
 
 **Merging your own work.** Accumulate results on a branch, verify
-independently, report what is mergeable. The owner merges.
+independently, report what is mergeable. The owner merges. Before you report,
+close the run with the judge: hand it the whole accumulated diff, not one card
+at a time, because what survives a per-card review is precisely the defect that
+only appears once the cards sit together. Its findings become cards at the top
+of the queue, and nothing is reverted, the code passed its gates. Say in the
+report which family judged, or that none did.
 
 **Running without being asked.** Setting up and running are two decisions. The
 second belongs to the owner, every time, and a run left unsupervised for hours
