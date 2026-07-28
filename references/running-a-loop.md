@@ -12,6 +12,13 @@ a reset. This is what makes autonomous work safe enough to leave running.
 State that must survive a reset, banked diffs, reports, notes, lives outside
 the disposable tree, somewhere git tracks.
 
+Contain the footprint. Everything the loop creates on disk, worktree, caches,
+logs, lives in ONE place the owner agreed to: an ignored directory inside the
+project (`.worktrees/`, with caches beside it) or a single per-project
+directory under the home. The parent folder of the project belongs to the
+owner, not to the loop; sibling directories scattered there are debris, even
+when they work.
+
 Whatever you choose, make failure cheap. If undoing a bad unit of work is
 expensive, you will be tempted to keep it.
 
