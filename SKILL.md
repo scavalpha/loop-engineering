@@ -237,6 +237,12 @@ The cycle is done when:
 A condition that does not hold is not shame, and it is not ignorable either:
 it is the next unit of work, closed before another card is opened.
 
+And let every proof BLOCK what follows it: a command chain that steps over a
+failed mutation and reaches the commit writes a claim nobody made true. On the
+run this comes from, a mutation missed its target, the chain went on, and the
+commit message asserted a discriminance that never ran; only rereading the
+output caught it, and the commit had to be undone and retold.
+
 Write into the commit what you verified and how, in terms someone can replay:
 the suite you ran, the count it returned, what you broke to watch the test go
 red. That sentence is what makes the driver's work checkable at all, and it is
