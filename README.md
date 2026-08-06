@@ -16,8 +16,19 @@ Claude Code:
     git clone <this-repo> ~/dev/loop-engineering
     ln -s ~/dev/loop-engineering ~/.claude/skills/loop-engineering
 
-Codex: add a line to `AGENTS.md` pointing at `SKILL.md`.
+Codex: recent CLI versions load the same Agent Skills format from
+`~/.codex/skills/loop-engineering`. Otherwise add a line to `AGENTS.md`
+pointing at `SKILL.md`.
 Hermes or any other agent: point it at `SKILL.md`.
+
+## Requirements
+
+- A reasoning agent with shell and git access. Nothing else is imposed: the
+  agent builds the harness that fits the project.
+- Ideally a second model family installed, because the closure judge is
+  defined relationally: its family differs from the maker's and from the
+  verifier's. If only one family is available, the skill requires the run
+  report to say so instead of implying an independent review happened.
 
 ## Use
 
@@ -46,3 +57,7 @@ work, how to verify it, and what tooling it needs.
 Distilled from months of overnight runs on production projects, and from a
 long argument about how much of that machinery was ever necessary. Most of it
 was scaffolding for a weak executor. What survived is here.
+
+## License
+
+MIT, see LICENSE.
