@@ -20,96 +20,40 @@ unknowns and fewer repeated failure modes than the previous one.
 
 ## How the loop works
 
-The system has six layers. Product authority defines truth. The driver owns the
-run. The cartographer reconciles that truth with the current project and
-maintains an adaptive card queue. Makers execute one card at a time. Tests and
-independent verification control acceptance. The closure judge reviews the
-whole accumulated result, not isolated cards.
+The loop is a five-step circle:
 
 ```mermaid
-flowchart TD
-    subgraph L1["1. Product authority"]
-        OWNER["Owner decisions"]
-        SPEC["Project brief / cahier des charges / specification"]
-        REALITY["Current code, data, and baseline"]
-    end
+flowchart LR
+    CHECK["1. CHECK DECK"]
+    MAKE["2. MAKE CARD"]
+    TEST["3. TEST CARD"]
+    REVIEW["4. REVIEW CARD"]
+    LEARN["5. SAVE + LEARN"]
 
-    subgraph L2["2. Orchestration"]
-        DRIVER["Driver<br/>goal, deadline, safety"]
-        MODELS["Role and model pool<br/>hosted or local"]
-        CARTO["Cartographer<br/>whole-project audit"]
-    end
-
-    subgraph L3["3. Adaptive card queue"]
-        QUEUEAUDIT["Create, split, retire,<br/>quarantine, reprioritize"]
-        CARD["Highest-value executable card<br/>with DONE WHEN"]
-    end
-
-    subgraph L4["4. Card execution and proof"]
-        MAKER["Maker"]
-        RED["Discriminating RED<br/>or equivalent witness"]
-        BUILD["Smallest implementation"]
-        GATES["Focused + whole-project gates"]
-        VERIFY["Independent verifier"]
-    end
-
-    subgraph L5["5. Stored learning"]
-        ACCEPT["Atomic commit + card done"]
-        LEARN["Regression test, spec rule,<br/>runbook, finding, or new card"]
-    end
-
-    subgraph L6["6. Run closure"]
-        JUDGE["Cross-family judge if available<br/>accumulated diff + evidence"]
-        CLEAN["Final gates, cleanup,<br/>durable handoff"]
-        OWNERMERGE["Owner decides merge,<br/>push, or deploy"]
-    end
-
-    OWNER --> DRIVER
-    SPEC --> CARTO
-    REALITY --> CARTO
-    DRIVER --> MODELS
-    DRIVER --> CARTO
-    CARTO --> QUEUEAUDIT
-    QUEUEAUDIT --> CARD
-    CARD --> MAKER
-    MODELS -. casts .-> MAKER
-    MODELS -. casts .-> VERIFY
-    MODELS -. casts .-> JUDGE
-    MAKER --> RED
-    RED --> BUILD
-    BUILD --> GATES
-    GATES --> VERIFY
-    VERIFY -- "BLOCK: precise repair" --> CARD
-    VERIFY -- "PASS" --> ACCEPT
-    ACCEPT --> LEARN
-    LEARN --> QUEUEAUDIT
-    ACCEPT -- "next card while goal and time remain" --> CARD
-    DRIVER -- "goal reached or deadline" --> JUDGE
-    ACCEPT --> JUDGE
-    JUDGE -- "verified finding" --> CARD
-    JUDGE -- "PASS" --> CLEAN
-    CLEAN --> OWNERMERGE
-    OWNERMERGE -. "new owner goal" .-> DRIVER
+    CHECK -- "empty: create from brief/spec; big: split; reorder + pick" --> MAKE
+    MAKE --> TEST
+    TEST -- "FAIL" --> MAKE
+    TEST -- "PASS" --> REVIEW
+    REVIEW -- "REJECT" --> MAKE
+    REVIEW -- "PASS" --> LEARN
+    LEARN -- "NEXT CARD" --> CHECK
 ```
 
-The return arrows are the mechanism:
+1. **Check the card deck.** If it is empty, create cards from the project brief
+   or specification. If a card is too large, split it. Retire stale cards,
+   reorder the deck, and pick the highest-priority executable card.
+2. **Make the card.** Implement that one bounded outcome.
+3. **Test the card.** Run a test that was proven to fail before the change,
+   then run the project's wider gates. A failure returns to the maker.
+4. **Review the card.** An independent verifier checks the behavior, scope,
+   tests, and evidence. A rejection returns to the maker with a precise repair.
+5. **Save and learn.** On PASS, commit atomically, mark the card done, and save
+   the regression test, specification clarification, or operating lesson. Then
+   return to the deck and select the next card.
 
-- a verifier blocker becomes a precise repair card;
-- an accepted card stores its tests and lessons, then the queue is audited
-  again before selection continues;
-- a closure-judge finding becomes a top-priority card and is fixed forward;
-- a new owner goal starts another run from current product authority, not from
-  a stale historical plan.
-
-This creates two nested feedback loops:
-
-1. **Card loop:** select → establish RED → implement → run gates → verify →
-   commit or repair.
-2. **Run loop:** audit the whole → execute cards → learn and rearrange → judge
-   the accumulated diff → clean up and hand control back to the owner.
-
-No layer declares itself successful. Every layer is checked by executed
-evidence or by a different downstream role.
+The circle continues until the goal holds or the authorized time ends. At run
+close, the whole accumulated diff is judged, final gates run, owned processes
+are cleaned up, and the verified result is handed to the owner.
 
 Rendered versions: [SVG](diagrams/loop-engineering-architecture.svg) ·
 [PNG](diagrams/loop-engineering-architecture.png) ·
@@ -169,14 +113,14 @@ Hermes and other compatible agents can point their skill loader directly at
 ## What a loop needs before it starts
 
 An autonomous loop needs product authority and a mechanically decidable goal.
-The owner supplies a project brief, cahier des charges, specification,
-requirements document, story bible, schema, acceptance suite, or equivalent
-source that says what the project must be.
+The owner supplies a project brief, product requirements document, functional
+specification, story bible, schema, acceptance suite, or equivalent source that
+says what the project must be.
 
 The agent first finds and reconciles all available authority:
 
 1. the owner's current instructions and explicit decisions;
-2. the cahier des charges or other primary specification;
+2. the product requirements document or other primary specification;
 3. current project rules and contracts;
 4. executable tests and observed behavior;
 5. historical notes, cards, and reports, treated as evidence rather than
@@ -437,7 +381,7 @@ model constraints, and safety boundaries:
 
 ```text
 Use the latest loop-engineering skill in this project folder.
-Treat docs/cahier-des-charges.md as the primary specification.
+Treat docs/requirements.md as the primary specification.
 Run for two hours, directly in the current checkout.
 Use the available local coding model for makers and a different frontier
 family for the final judge. Do not merge, push, deploy, or touch production.

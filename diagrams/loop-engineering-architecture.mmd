@@ -1,63 +1,14 @@
-flowchart TD
-    subgraph L1["1. Product authority"]
-        OWNER["Owner decisions"]
-        SPEC["Project brief / cahier des charges / specification"]
-        REALITY["Current code, data, and baseline"]
-    end
+flowchart LR
+    CHECK["1. CHECK DECK"]
+    MAKE["2. MAKE CARD"]
+    TEST["3. TEST CARD"]
+    REVIEW["4. REVIEW CARD"]
+    LEARN["5. SAVE + LEARN"]
 
-    subgraph L2["2. Orchestration"]
-        DRIVER["Driver<br/>goal, deadline, safety"]
-        MODELS["Role and model pool<br/>hosted or local"]
-        CARTO["Cartographer<br/>whole-project audit"]
-    end
-
-    subgraph L3["3. Adaptive card queue"]
-        QUEUEAUDIT["Create, split, retire,<br/>quarantine, reprioritize"]
-        CARD["Highest-value executable card<br/>with DONE WHEN"]
-    end
-
-    subgraph L4["4. Card execution and proof"]
-        MAKER["Maker"]
-        RED["Discriminating RED<br/>or equivalent witness"]
-        BUILD["Smallest implementation"]
-        GATES["Focused + whole-project gates"]
-        VERIFY["Independent verifier"]
-    end
-
-    subgraph L5["5. Stored learning"]
-        ACCEPT["Atomic commit + card done"]
-        LEARN["Regression test, spec rule,<br/>runbook, finding, or new card"]
-    end
-
-    subgraph L6["6. Run closure"]
-        JUDGE["Cross-family judge if available<br/>accumulated diff + evidence"]
-        CLEAN["Final gates, cleanup,<br/>durable handoff"]
-        OWNERMERGE["Owner decides merge,<br/>push, or deploy"]
-    end
-
-    OWNER --> DRIVER
-    SPEC --> CARTO
-    REALITY --> CARTO
-    DRIVER --> MODELS
-    DRIVER --> CARTO
-    CARTO --> QUEUEAUDIT
-    QUEUEAUDIT --> CARD
-    CARD --> MAKER
-    MODELS -. casts .-> MAKER
-    MODELS -. casts .-> VERIFY
-    MODELS -. casts .-> JUDGE
-    MAKER --> RED
-    RED --> BUILD
-    BUILD --> GATES
-    GATES --> VERIFY
-    VERIFY -- "BLOCK: precise repair" --> CARD
-    VERIFY -- "PASS" --> ACCEPT
-    ACCEPT --> LEARN
-    LEARN --> QUEUEAUDIT
-    ACCEPT -- "next card while goal and time remain" --> CARD
-    DRIVER -- "goal reached or deadline" --> JUDGE
-    ACCEPT --> JUDGE
-    JUDGE -- "verified finding" --> CARD
-    JUDGE -- "PASS" --> CLEAN
-    CLEAN --> OWNERMERGE
-    OWNERMERGE -. "new owner goal" .-> DRIVER
+    CHECK -- "empty: create from brief/spec; big: split; reorder + pick" --> MAKE
+    MAKE --> TEST
+    TEST -- "FAIL" --> MAKE
+    TEST -- "PASS" --> REVIEW
+    REVIEW -- "REJECT" --> MAKE
+    REVIEW -- "PASS" --> LEARN
+    LEARN -- "NEXT CARD" --> CHECK
