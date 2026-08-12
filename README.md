@@ -11,15 +11,56 @@ this skill carries.
 
 ## Install
 
-Claude Code:
+Clone the public repository directly into your agent's skills directory. No
+`~/dev` folder is required.
 
-    git clone <this-repo> ~/dev/loop-engineering
-    ln -s ~/dev/loop-engineering ~/.claude/skills/loop-engineering
+### Claude Code
 
-Codex: recent CLI versions load the same Agent Skills format from
-`~/.codex/skills/loop-engineering`. Otherwise add a line to `AGENTS.md`
-pointing at `SKILL.md`.
-Hermes or any other agent: point it at `SKILL.md`.
+```sh
+mkdir -p ~/.claude/skills
+git clone https://github.com/scavalpha/loop-engineering.git \
+  ~/.claude/skills/loop-engineering
+```
+
+### Codex
+
+```sh
+mkdir -p ~/.codex/skills
+git clone https://github.com/scavalpha/loop-engineering.git \
+  ~/.codex/skills/loop-engineering
+```
+
+Recent Codex CLI versions load the Agent Skills format from
+`~/.codex/skills/loop-engineering`. On older versions, add a line to the
+project's `AGENTS.md` pointing at the cloned `SKILL.md`.
+
+### Claude Code and Codex from one clone
+
+To keep one copy shared by both agents:
+
+```sh
+mkdir -p ~/.local/share/agent-skills ~/.claude/skills ~/.codex/skills
+git clone https://github.com/scavalpha/loop-engineering.git \
+  ~/.local/share/agent-skills/loop-engineering
+ln -s ~/.local/share/agent-skills/loop-engineering \
+  ~/.claude/skills/loop-engineering
+ln -s ~/.local/share/agent-skills/loop-engineering \
+  ~/.codex/skills/loop-engineering
+```
+
+These commands intentionally stop if a skill already exists at either target;
+inspect and remove or rename the existing copy before replacing it.
+
+### Update
+
+Run `git pull --ff-only` in the directory you cloned. For example:
+
+```sh
+git -C ~/.codex/skills/loop-engineering pull --ff-only
+```
+
+Hermes or any other compatible agent can use the same repository by pointing
+its skill loader at `SKILL.md`.
 
 ## Requirements
 
@@ -36,9 +77,12 @@ Tell your agent what you want and let it work:
 
     "Start a loop on this project: get the checkout flow working end to end."
 
-It will ask what it cannot observe, write the spec and the first cards with
-you, prove the base is sound, and then work. It decides how to isolate its
-work, how to verify it, and what tooling it needs.
+Before the autonomous window begins, it resolves anything material it cannot
+observe, writes the spec and first cards with you when needed, and proves the
+base is sound. During the run it works directly in the project folder you
+provided, on the current branch or a local branch. It does not create a clone
+or worktree unless you explicitly request one. It decides how to verify the
+work and what tooling the project needs.
 
 ## What it gives the agent
 
