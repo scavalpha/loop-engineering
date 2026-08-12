@@ -19,17 +19,20 @@ their logs are not in this repository.
 
 ## 1. Isolation and atomicity
 
-**The worktree is the blast radius.** The maker works in a disposable git
-worktree on a dedicated branch, never in the main checkout. This is what makes
-permission-bypassed agent execution acceptable: the worst case is a worktree
-reset. State that must survive resets (generation counters, banked patches,
-reports) lives OUTSIDE the worktree, in the main checkout.
-Origin: a generation counter stored inside the worktree was silently lost at
-every run start, so the anti-churn cap never fired across runs.
+**The owner-provided project folder is the boundary.** Work directly in that
+checkout, on its current branch or a local loop branch. Never create a clone or
+a worktree as an implicit isolation mechanism. A worktree is allowed only when
+the owner explicitly requests one in the current conversation, and then it
+lives inside the project folder. Permission bypass is not isolation: if the
+folder is not writable for the full window, the run does not start.
+Origin: a loop escaped a workspace permission boundary by creating a clone in
+another project folder, polluted the owner's disk, and still could not remain
+autonomous.
 
-**Atomicity.** One card, one cycle, one verdict. Green: exactly one commit,
-`feat: <card-name> [loop]`. Red: `git reset --hard` plus clean. The commit
-message format is load-bearing: dedup, resume and fix-lot logic all grep it.
+**Atomicity.** One card, one cycle, one verdict. Green: exactly one commit.
+Red: preserve the rejected diff as evidence when useful, then restore only the
+loop-owned changes and prove the checkout clean. Never discard pre-existing or
+owner-owned work. The commit message records the card and executed evidence.
 
 ## 2. Cards and probes
 
@@ -107,7 +110,7 @@ is reverted (fix-forward: the code is committed and working, refine it).
   every `-fixes` suffix, repeatedly, until stable. Origin: gen 3 of a fix was
   named `00-F1-00-F1-00-F1-<base>-fixes-fixes-fixes`, each generation saw a
   "new" base, each got a fresh counter, and the cap never fired.
-- **Counters persist in the main checkout**, not the worktree (see rule 1).
+- **Counters persist in the project checkout** (see rule 1).
 - Above the cap (default 2): stop generating fix cards for that base and
   surface the findings to the owner instead. Endless fix-of-fix is churn.
 
@@ -166,7 +169,7 @@ from the provider justifies a long wait, an estimate never does.
 ## 9. The machine is part of the system
 
 - **Reap orphans every cycle and at close**: any process whose command line
-  points into the worktree (JVMs, dev servers, node, headless browsers) and
+  points into the project folder (JVMs, dev servers, node, headless browsers) and
   that is not the agent itself. Leaked processes accumulate across cycles and
   saturate the machine.
 - **Headless Chromium on macOS**: force GPU off (`--disable-gpu` family

@@ -4,23 +4,25 @@ This is one worked way of pursuing a goal autonomously. It is not a procedure
 to follow literally: build the harness that fits your project and your tools.
 What matters is that each element below is covered somehow.
 
-## Isolation
+## Project boundary
 
-Work somewhere disposable, on its own branch. A git worktree is the usual
-answer: the main checkout stays untouched, and a failed unit costs nothing but
-a reset. This is what makes autonomous work safe enough to leave running.
-State that must survive a reset, banked diffs, reports, notes, lives outside
-the disposable tree, somewhere git tracks.
+Work directly in the exact project folder the owner supplied or opened, on its
+current branch or a local branch in that checkout. Do not create another clone
+or a worktree. The owner may explicitly request a worktree for a particular
+run; only then create it, and only inside the same project folder.
 
-Contain the footprint. Everything the loop creates on disk, worktree, caches,
-logs, lives in ONE place the owner agreed to: an ignored directory inside the
-project (`.worktrees/`, with caches beside it) or a single per-project
-directory under the home. The parent folder of the project belongs to the
-owner, not to the loop; sibling directories scattered there are debris, even
-when they work.
+Preflight this before starting: resolve the Git top-level, inspect and preserve
+existing changes, and prove the folder and Git metadata are writable for the
+full authorized window. If any of that fails, stop before the first card. Do
+not relocate the project or start a run that will need an approval prompt
+midway through its supposedly autonomous window.
 
-Whatever you choose, make failure cheap. If undoing a bad unit of work is
-expensive, you will be tempted to keep it.
+Contain caches, logs, reports, and temporary artifacts inside the project in
+ignored paths. The parent folder, sibling folders, other workspaces, and the
+home directory belong to the owner, not to the loop.
+
+Make failure cheap with atomic commits and reviewed restoration of loop-owned
+changes. Never reset, stash, hide, or discard pre-existing owner work.
 
 ## Rhythm
 
@@ -30,6 +32,14 @@ that went badly must not poison the next.
 
 Between units, the only things that persist are files: the cards, the commits,
 the notes on what you learned. That is deliberate.
+
+Pass a new sub-agent a role-sized packet from those artifacts, never the raw
+conversation as a substitute for a handoff. A maker needs its card, base,
+affected contracts and gates. A repair maker needs only the judge's remaining
+predicate, preserved behaviour, relevant diff and failing proof. The final
+judge needs the whole accumulated diff, cards, commits and executed evidence.
+This keeps a fresh start bounded without hiding the information each role
+actually needs.
 
 ## Verdict
 

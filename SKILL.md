@@ -1,17 +1,34 @@
 ---
 name: loop-engineering
-description: Set a goal on a local project and pursue it autonomously, one verifiable unit of work at a time, until the goal's condition actually holds. You decide how: how to isolate your work, how to verify it, what to build yourself. This skill gives you the goal shape and the failures that cost real nights, nothing else. Works on code and beyond (manuscripts, docs, datasets) wherever work can be verified. Use for overnight loops, autonomous development, self-improving build loops. Triggers include "loop engineering", "overnight loop", "autonomous loop", "boucle autonome", "run cards".
+description: >-
+  Set a goal on a local project and pursue it autonomously, inside the owner-provided project folder, one verifiable unit at a time, until the goal condition actually holds. Work in the current checkout and branch or a local branch; never create a clone or worktree unless the owner explicitly requests one. Use for overnight loops, autonomous development, self-improving build loops, manuscripts, documentation, or datasets where progress can be verified. Triggers include "loop engineering", "overnight loop", "autonomous loop", "boucle autonome", and "run cards".
 ---
 
 # Loop Engineering
 
 Pursue a goal on a project, autonomously, until it genuinely holds.
 
-You know how to do this. Build your own harness: decide how to isolate your
-work, how to verify it, what to keep between sessions, what tooling you need.
+You know how to do this. Build your own harness: decide how to verify the
+work, what to keep between sessions, and what tooling you need.
 This document does not tell you which commands to run. It tells you the shape
 of the goal, and the ways this has failed on real projects, because those you
 cannot derive.
+
+## The project folder is a hard boundary
+
+Work directly in the exact project folder the owner supplied or opened. Use
+its current branch or create a local branch in that same checkout, and commit
+each accepted unit atomically. Do not create a second clone or a worktree.
+
+The only exception is an explicit owner request for a worktree in the current
+conversation. Then place it inside the same project folder, never beside the
+project, under another workspace, or in a generic home-directory location.
+
+Before starting the run, resolve the Git top-level and prove the entire folder
+is writable for the whole authorized window. If it is not, stop before the
+first card and have the workspace or permissions corrected. Never relocate the
+project to escape a permission boundary, and never begin a supposedly
+autonomous run that will need an owner approval prompt midway through it.
 
 ## The shape
 
@@ -103,8 +120,8 @@ The single most expensive failure mode is accepting work because it looks
 done. Execute the build, execute the tests, read the output.
 
 **Half-applied work.** A card that ends neither committed nor reverted rots
-the codebase silently. Make outcomes atomic and make failure cheap: work
-somewhere disposable, keep the diff of what failed, never leave debris.
+the codebase silently. Make outcomes atomic and make failure cheap: keep the
+diff of what failed, restore only loop-owned changes, never leave debris.
 
 **Per-unit checks missing assembly breakage.** Ten cards each verified green,
 product broken: they interact. Verify the whole thing regularly, and always
@@ -121,9 +138,9 @@ Run what the project runs. On the run this comes from, a bare runner reported
 thirty-three files failing on untouched code; the project's own command
 reported all of them passing, and it was right.
 
-**Reading one queue while working in another tree.** If the work happens on a
-branch or a worktree, the units of work you pick must come from that same
-place. On the run this comes from, the queue had been pruned from 128 cards to
+**Reading one queue while working in another checkout.** If the work happens
+on a branch, the units of work you pick must come from that same checkout. On
+the run this comes from, the queue had been pruned from 128 cards to
 18 on one branch while the working tree still carried all 139: every decision
 about what mattered next was made from a list that was not the one on disk.
 
@@ -184,6 +201,43 @@ the code passed its gates. Its design preferences and unproved suspicions go
 to the owner as observations, never as gates. Say in the
 report which family judged, or that none did.
 
+## Context follows responsibility
+
+Fresh work does not mean empty work. It means a fresh agent receives a small,
+role-specific packet assembled from authoritative artifacts, not a fork of the
+run's raw conversation. The driver owns the broad run history; files, commits,
+cards and executed evidence are its durable form. A transcript is neither the
+source of truth nor a safe shortcut: it repeats cost, carries abandoned
+hypotheses and makes a new agent spend its window rediscovering scope.
+
+Give each role this shape:
+
+| Role | Packet |
+| --- | --- |
+| maker | card and DONE WHEN; tree and base commit; affected contracts and paths; relevant current state; exact gates and limits |
+| repair maker | remaining failed predicate; accepted behaviour to preserve; affected current diff; smallest reproduction or failing output; exact repair gate |
+| judge | full accumulated diff; cards; commits; commands actually run and their evidence; concise decisions, deviations, risks and skipped checks |
+| cartographer | spec, current code and queue; it is the role that may need broad context |
+
+The maker packet is not a summary of the project. It is a pointer set: every
+claim must lead to a file, commit, card or test artifact the maker can inspect.
+The repair packet is differential: a judge that accepts ninety percent has
+already paid for that ninety percent, so the next maker works only on the
+rejected ten while preserving named accepted behaviour. The judge alone needs
+the full *diff* because assembly defects live across cards; it does not need a
+raw transcript when the decisions it must audit are named and linked.
+
+When the parent tool offers a full-history fork, assemble this packet instead.
+If time is too short to discover the packet, take it from existing cards,
+commits, test output and the judge's finding; do not replace uncertainty with
+the entire history. If an old decision is genuinely material, attach that
+single decision and its artifact. Record a missing artifact as unknown.
+
+The tempting claim is "full history is safer" or "a brief might omit nuance."
+Safety comes from inspectable artifacts and an independent whole-diff judge,
+not from making every maker reread every failed experiment. This division
+keeps context cost bounded without reducing the evidence required for DONE.
+
 **Running without being asked.** Setting up and running are two decisions. The
 second belongs to the owner, every time. The order covers a window: a restart
 inside that window is the same run, and past its deadline nothing relaunches
@@ -233,6 +287,10 @@ The cycle is done when:
   craft. Promoting a craft lesson into this shared skill is a separate,
   deliberate act the owner sees, after the test in `what-travels.md`: a lesson
   only this project wants never leaves the project.
+- **Every fresh agent received the packet for its role, not a raw-history
+  fork.** The judge received the accumulated diff and executed evidence; a
+  repair maker received only the still-failing predicate and preserved
+  behaviour.
 
 A condition that does not hold is not shame, and it is not ignorable either:
 it is the next unit of work, closed before another card is opened.

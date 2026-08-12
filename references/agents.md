@@ -5,7 +5,7 @@ meaningfully better when they are not.
 
 | Role | What it does | Wants |
 | --- | --- | --- |
-| **maker** | executes one card in a disposable worktree | the strongest coder available |
+| **maker** | executes one card on the loop branch in the owner's project checkout | the strongest coder available |
 | **judge** | reviews the run's accumulated diff at close, findings become cards | a DIFFERENT family from both the maker and whoever verified |
 | **cartographer** | compares the spec to the code, emits the next cards | strong reasoning, large context |
 | **critic** | looks at the running product, emits improvement cards | eyes: it must see screens |
