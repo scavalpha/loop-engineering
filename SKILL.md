@@ -1,7 +1,7 @@
 ---
 name: loop-engineering
 description: >-
-  Set a goal on a local project and pursue it autonomously, inside the owner-provided project folder, one verifiable unit at a time, until the goal condition actually holds. Work in the current checkout and branch or a local branch; never create a clone or worktree unless the owner explicitly requests one. Use for overnight loops, autonomous development, self-improving build loops, manuscripts, documentation, or datasets where progress can be verified. Triggers include "loop engineering", "overnight loop", "autonomous loop", "boucle autonome", and "run cards".
+  Set a goal on a local project and pursue it autonomously, inside the owner-provided project folder, one verifiable unit at a time, until the goal condition actually holds. Work in the current checkout and branch or a local branch; never create a clone or worktree unless the owner explicitly requests one. Use for timed loops, autonomous development, self-improving build loops, manuscripts, documentation, or datasets where progress can be verified. Triggers include "loop engineering", "timed loop", "autonomous loop", "boucle autonome", and "run cards".
 ---
 
 # Loop Engineering
@@ -113,7 +113,7 @@ regression, it is a check to delete.
 
 ## What has actually gone wrong
 
-Every item below cost a night, a lost day, or shipped a defect.
+Every item below cost a run window, delayed work, or shipped a defect.
 
 **Believing instead of running.** Nobody can reason that a project compiles.
 The single most expensive failure mode is accepting work because it looks

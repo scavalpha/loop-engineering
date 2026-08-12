@@ -26,7 +26,7 @@ model runtime) rather than asking the owner to recite them. Then:
 - **One family only**: run without a judge rather than with a same-family one,
   and say so in the report. A rubber-stamp review is worse than none, it
   creates false confidence.
-- **A local model available**: the cheapest long night is a local maker with a
+- **A local model available**: the cheapest extended run is a local maker with a
   frontier judge and cartographer. Fewer greens per hour at a fraction of the
   cost, and the judge catches what the weaker maker misses.
 
@@ -47,5 +47,5 @@ exactly this.
   converts good work into false reds, and the failure reads as the card's
   fault.
 - Provider overload, rate limits and quota estimates are infrastructure,
-  never the card's fault. The rules, each from a lost night, are in
+  never the card's fault. The rules, each from a failed run window, are in
   `doctrine.md` §8.

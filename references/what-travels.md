@@ -23,7 +23,7 @@ class of error that recurs is a missing check, not a careless agent.**
 The first time a mistake happens, fix it. The second time, write down what
 would have caught it, and make that part of what you verify from then on. That
 is how a loop gets better on a project rather than restarting from zero every
-night.
+run.
 
 Examples of what earns its place:
 

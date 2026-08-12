@@ -1,6 +1,6 @@
 # Doctrine: the laws and the incidents behind them
 
-Every rule below was paid for in production: a lost night, a lying card, a
+Every rule below was paid for in production: a lost run window, a lying card, a
 false green. The format is the rule, then what created it. Keep the incidents
 with the rules: a rule whose origin is forgotten gets deleted by the next
 person optimising, and the incident comes back.
@@ -74,7 +74,7 @@ cycle, with three guards, each from an incident:
 
 The same applies late: a cycle that changed nothing but whose card's probes
 all pass is "done, delivered earlier", not an infra failure. Origin: an
-already-done card re-picked at night was read as a dead model and the driver
+already-done card re-picked later was read as a dead model and the driver
 spent 7 hours in a heal loop.
 
 ## 4. Repair cards are special
@@ -148,7 +148,7 @@ data those cards had refactored.
 ## 8. Infra failure classes (never blame the card)
 
 The driver classifies failures BEFORE routing a card to retry or escalation.
-Signatures and responses, each from a lost night or a burned window:
+Signatures and responses, each from a lost run or a burned window:
 
 | Class | Signature | Response |
 | --- | --- | --- |
@@ -162,8 +162,8 @@ obey two limits: if the metric does not move across two readings, resume (a
 frozen metric means the sensor is dead or the quota is non-refilling, waiting
 is wrong in both cases), and never pause more than a fixed number of slices.
 Origin: a provider silently replaced its 5-hour quota window with a weekly
-one, the probe kept reading a frozen 83 percent, and the gate paused an entire
-night, 10 minutes at a time, until the deadline. Doctrine: only a REAL error
+one, the probe kept reading a frozen 83 percent, and the gate paused for the
+entire run window, 10 minutes at a time, until the deadline. Doctrine: only a REAL error
 from the provider justifies a long wait, an estimate never does.
 
 ## 9. The machine is part of the system
@@ -179,7 +179,7 @@ from the provider justifies a long wait, an estimate never does.
   the run's own e2e green, the manual re-verification 7 failed then killed at
   RC=137, swap at 94 percent, backend OOM-killed mid-suite. Before believing
   a red that contradicts a green, check memory and swap. Prefer verifying on
-  a quiet machine, and prefer night runs if the workday loads the box.
+  a quiet machine, and schedule resource-heavy runs when the machine is quiet.
 - **Lock files**: a maker that edits the dependency manifest must regenerate
   the lock file in the same card, and the install command in preflight will
   catch the desync (`npm ci` style, fail loud, no silent flag).
@@ -189,7 +189,7 @@ from the provider justifies a long wait, an estimate never does.
 - **No run without an explicit owner order.** The words come from the owner
   in the current conversation, never inferred, never carried over.
 - **Supervise, never fire-and-forget.** Check roughly every 10 minutes early
-  in a run. Intercept build-and-revert loops before they eat the night. The
+  in a run. Intercept build-and-revert loops before they consume the window. The
   checker is whoever drives, human or agent: an agent driver watches its own
   run, the owner reads the report.
 - **A net-caught anomaly is still an anomaly.** The resurrector restarting a
@@ -198,7 +198,7 @@ from the provider justifies a long wait, an estimate never does.
 - **Close runs completely.** Kill the scheduler entry AND delete its config
   (a `launchctl bootout` does not survive a reboot if the plist remains, and
   a stale plist re-launched a finished run with a past deadline interpreted
-  as tomorrow). Purge the night-plan marker on legitimate ends so any
+  as tomorrow). Purge the run-plan marker on legitimate ends so any
   resurrector knows the run is over.
 - **The owner merges.** Greens accumulate on the loop branch. Merging into
   the base branch is a human decision after independent verification.
